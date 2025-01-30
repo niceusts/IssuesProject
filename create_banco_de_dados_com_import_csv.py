@@ -2,16 +2,20 @@ import pandas as pd
 import psycopg2
 from psycopg2 import sql
 import json
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Carregar os dados do arquivo CSV
-df = pd.read_csv("issues_final.csv")  # Substitua pelo seu DataFrame
+df = pd.read_csv("issues6.csv")  # Substitua pelo seu DataFrame
 
 # Substituir NaN por None (NULL no PostgreSQL) nas colunas de data
 df['created_at'] = df['created_at'].apply(lambda x: None if pd.isna(x) else x)
 df['closed_at'] = df['closed_at'].apply(lambda x: None if pd.isna(x) else x)
 
-# Garantir que 'assignee' seja um JSON válido ou NULL
-df['assignee'] = df['assignee'].apply(lambda x: None if pd.isna(x) else (json.dumps(x) if isinstance(x, dict) else None))
+# Garantir que 'assignee' seja NULL se não houver valor
+# df['assignee'] = df['assignee'].apply(lambda x: None if pd.isna(x) or x == '' else x)
 
 # Garantir que 'milestone' seja um JSON válido ou NULL
 df['milestone'] = df['milestone'].apply(lambda x: None if pd.isna(x) else (json.dumps(x) if isinstance(x, dict) else None))
@@ -27,7 +31,10 @@ df['description'] = df['description'].apply(lambda x: None if pd.isna(x) else x)
 
 # Estabelecendo a conexão com o banco de dados
 conn = psycopg2.connect(
-    dbname="", user="", password="", host=""
+    dbname=os.getenv("DB_NAME"), 
+    user=os.getenv("DB_USER"), 
+    password=os.getenv("DB_PASSWORD"), 
+    host=os.getenv("DB_HOST")
 )
 cursor = conn.cursor()
 

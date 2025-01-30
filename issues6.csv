@@ -1,0 +1,2614 @@
+id,number,title,state,created_at,updated_at,closed_at,assignee,milestone,html_url,labels,comments,description
+2722478099,82385,Kernel crash in optimizer.apply_gradient for complex-valued gradients,closed,2024-12-06 09:06:49+00:00,2024-12-26T02:01:00Z,2024-12-26T02:00:55Z,Venkat6871,,https://github.com/tensorflow/tensorflow/issues/82385,"['stat:awaiting response', 'type:bug', 'stale', 'comp:ops', 'TF 2.18']","['Hi, \r\n\r\nI am slightly confused. this is exactly the code that I already provided above as ""real-valued"" equivalent. It unfortunately does not solve the issue. The complex-valued variant worked prior to TF 2.17 and now it does not work anymore.', 'Hi **@jhoydis** ,\r\nApologies for the delay, and thank you for raising your concern. With TensorFlow 2.18.0, Keras 3.x is used by default, which might be cause for the issue. I manually installed Keras 2, and it worked fine for me. To install Keras 2, use the following command:\r\n```\r\n!pip install tf-keras\r\nimport tf_keras as keras\r\n```\r\nPlease find the [gist](https://colab.sandbox.google.com/gist/Venkat6871/d8b0105db34a3a5c17acdc46ad603083/82385_tf-2-18-0-v.ipynb) here for reference.\r\nThank you!', 'This issue is stale because it has been open for 7 days with no activity. It will be closed if no further activity occurs. Thank you.', ""This issue was closed because it has been inactive for 7 days since being marked as stale. Please reopen if you'd like to work on this further."", 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/82385"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/82385"">No</a>\n']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+No
+
+### Source
+
+binary
+
+### TensorFlow version
+
+2.18
+
+### Custom code
+
+No
+
+### OS platform and distribution
+
+Ubuntu 22.04
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+3.12
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+_No response_
+
+### GPU model and memory
+
+_No response_
+
+### Current behavior?
+
+The issue was originally posted as Keras issue keras-team/keras#20581. They decided that this is a TF bug and not coming from Keras:
+
+TensorFlow is able to correctly compute gradients for complex-valued variables. However, the Keras3 optimizers do not seem to be able to correctly apply complex-valued gradients. This worked with Keras 2.
+
+Here is a code snippet that works in TF2.15, but leads to a Kernel crash with Keras 3.7 and TF 2.18 on a GPU.
+The crash is caused by the function `optimizer.apply_gradients`.
+
+### Standalone code to reproduce the issue
+
+```shell
+import tensorflow as tf
+
+# Complex-valued variable (leading to a Kernel crash)
+x = tf.Variable(tf.complex(3., 2.), trainable=True)
+optimizer = tf.keras.optimizers.SGD()
+with tf.GradientTape() as tape:
+    loss = tf.abs(x)**2
+grads = tape.gradient(loss, tape.watched_variables())
+optimizer.apply_gradients(zip(grads, tape.watched_variables()))
+print(x)
+
+# Real-valued variable equivalent
+x_r = tf.Variable(3., trainable=True)
+x_i = tf.Variable(2., trainable=True)
+optimizer = tf.keras.optimizers.SGD()
+with tf.GradientTape() as tape:
+    x = tf.complex(x_r, x_i)
+    loss = tf.abs(x)**2
+grads = tape.gradient(loss, tape.watched_variables())
+optimizer.apply_gradients(zip(grads, tape.watched_variables()))
+print(tf.complex(x_r, x_i))
+```
+
+
+### Relevant log output
+
+_No response_"
+2724598337,82461,Dirichlet noise returns Nan under jit_compile,closed,2024-12-07 13:33:18+00:00,2024-12-26T02:00:57Z,2024-12-26T02:00:54Z,Venkat6871,,https://github.com/tensorflow/tensorflow/issues/82461,"['stat:awaiting response', 'type:bug', 'stale', 'comp:ops', 'TF 2.18']","[""I couldn't run with nightly"", 'Hi **@cmarlin** ,\r\nApologies for the delay, and thank you for raising your concern. The issue arises because you are multiplying `dir_alpha` by the `legal_action` tensor. If `legal_action` has a value of 0 for a specific action, the corresponding concentration parameter in the Dirichlet distribution becomes 0. This is invalid because the Dirichlet distribution requires all concentration parameters to be strictly positive. Additionally, this issue may occur when using JIT compilation, as XLA might handle zeros differently.\r\nTo resolve this, I added a small epsilon value to avoid zeros, and it worked fine for me. Please find the [gist](https://colab.sandbox.google.com/gist/Venkat6871/3b920adf58bf3e078bb7b95fb5fe7857/82461_tf_2-18-0-nightly-v.ipynb) here for reference.\r\n\r\nThank you!', 'This issue is stale because it has been open for 7 days with no activity. It will be closed if no further activity occurs. Thank you.', ""This issue was closed because it has been inactive for 7 days since being marked as stale. Please reopen if you'd like to work on this further."", 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/82461"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/82461"">No</a>\n']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+No
+
+### Source
+
+binary
+
+### TensorFlow version
+
+v2.18.0-rc2-4-g6550e4bd802 2.18.0
+
+### Custom code
+
+No
+
+### OS platform and distribution
+
+WSL2
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+3.10.12
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+_No response_
+
+### GPU model and memory
+
+_No response_
+
+### Current behavior?
+
+Function return some Nan values if jit_compile=True
+
+### Standalone code to reproduce the issue
+
+```shell
+import tensorflow as tf  # tf.__version__ '2.14.1'
+import tensorflow_probability as tfp  # tfp.__version__ '0.22.1'
+
+
+# @tf.function(jit_compile=True)  # uncomment to trigger bug
+def test_exploration_noise(
+    prnd: tf.Tensor,
+    legal_actions: tf.Tensor,
+):
+    action_space_size = 9
+    batch_size = 2048
+    root_dirichlet_alpha = 0.35
+
+    dir_alpha = tf.fill(
+            [batch_size, action_space_size], root_dirichlet_alpha
+        )
+    distribution = tfp.distributions.Dirichlet(dir_alpha * legal_actions)
+    noise = distribution.sample(seed=prnd)
+    return noise
+
+if __name__ == ""__main__"":
+    seed = tf.constant([ 348206018, 1455008836], dtype=tf.int32)
+    new_legal_actions = tf.ones([2048, 9]).numpy()
+    new_legal_actions[1212] = [1, 0, 0, 0, 0, 0, 1, 1, 0]  # using line 288 won't trigger bug
+    new_legal_actions = tf.convert_to_tensor(new_legal_actions)
+    noise = test_exploration_noise(
+            # root_dirichlet_alpha=config.root_dirichlet_alpha,
+            prnd=seed,
+            legal_actions=new_legal_actions,
+    )
+    print(noise[1212].numpy())
+    tf.debugging.assert_all_finite(noise, ""invalid noise"")
+```
+
+
+### Relevant log output
+
+```shell
+without jit:
+[0.00337291 0.         0.         0.         0.         0. 0.94923943 0.04738774 0.        ]
+
+with jit:
+[nan nan nan nan nan nan nan nan nan]
+```
+"
+2725244964,82465,tensorflow error in pycharm in ubuntu 22.04,closed,2024-12-08 13:34:03+00:00,2025-01-07T02:02:26Z,2025-01-07T02:02:23Z,Venkat6871,,https://github.com/tensorflow/tensorflow/issues/82465,"['stat:awaiting response', 'type:bug', 'stale', 'TF 2.18']","['\xa0 您好，邮件已经收到，我会尽快处理的。谢谢', 'Hi **@Chuan1937** ,\r\nCould you please provide details about the error you are facing? I tried running your code on Colab using TensorFlow 2.18.0, and it worked fine for me.\r\nPlease find the [gist](https://colab.sandbox.google.com/gist/Venkat6871/b4532cb16caf48e07ddcb75f1c84e5f2/82465_tf_2-18-0-v.ipynb) here for reference.\r\nThank you!', ""The code is correct, my problem is that on Ubuntu, using the above method to import tensorflow functions will result in an error: there is no such function.Although there may be errors, the code can run normally. I don't know why."", 'Hi **@Chuan1937** ,\r\nApologies for the delay, and thank you for your patience. I tried running your code on Ubuntu using TensorFlow version 2.18.0, and it is working fine for me. I have attached it below, please check it once. Let me know if I did anything wrong here.\r\n```\r\n(tf) (tf) maayara@venkat-gpu1:~$ python3\r\nPython 3.9.20 (main, Oct  3 2024, 07:27:41) \r\n[GCC 11.2.0] :: Anaconda, Inc. on linux\r\nType ""help"", ""copyright"", ""credits"" or ""license"" for more information.\r\n>>> import tensorflow as tf\r\n2024-12-16 08:10:24.296033: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:477] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered\r\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\r\nE0000 00:00:1734336624.317288   45364 cuda_dnn.cc:8310] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered\r\nE0000 00:00:1734336624.323644   45364 cuda_blas.cc:1418] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered\r\n2024-12-16 08:10:24.346344: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\r\nTo enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\r\n>>> print(tf.__version__)\r\n2.18.0\r\n>>> import matplotlib\r\n>>> import tensorflow.python.keras.models\r\n>>> from tensorflow.keras.optimizers import Adam\r\n>>> from tensorflow import keras\r\n>>> matplotlib.use(\'agg\')\r\n>>> import os\r\n>>> os.environ[\'TF_CPP_MIN_LOG_LEVEL\'] = \'3\'  # Suppress TensorFlow logs\r\n>>> from tensorflow.python import keras\r\n>>> from tensorflow.keras import backend as K\r\n>>> from tensorflow.keras.layers import (\r\n...     Add, Activation, LSTM, Conv1D, MaxPooling1D, UpSampling1D,\r\n...     Cropping1D, SpatialDropout1D, Bidirectional, BatchNormalization,add,InputSpec,\r\n... LayerNormalization,Layer, Dense, Dropout\r\n... )\r\n>>> \r\n```\r\nThank you!', ""I know the code is correct. But the problem is that it will have error report and it's can't popup keras or other api function.\r\nI have defined some deep learning model and run successfully on windows and ubuntu.\r\n\r\n![截图 2024-12-16 18-56-58](https://github.com/user-attachments/assets/cb2d9cf4-3288-429b-9210-7c1c6c65ac38)\r\n\r\n![截图 2024-12-16 19-01-12](https://github.com/user-attachments/assets/508f4468-ff83-43fa-9d97-42f2ac064a15)\r\n"", 'Thank you for your reply, I hope you can answer my questions！', 'Hi **@Chuan1937** ,\r\nApologies for the delay, and thank you for your patience. Could you please try importing Keras directly instead of importing it from TensorFlow? For example:\r\n`import keras`\r\ninstead of\r\n`from tensorflow import keras`\r\nLet us know if you are still facing the issue.\r\nThank you!', 'This issue is stale because it has been open for 7 days with no activity. It will be closed if no further activity occurs. Thank you.', ""This issue was closed because it has been inactive for 7 days since being marked as stale. Please reopen if you'd like to work on this further."", 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/82465"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/82465"">No</a>\n']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+Yes
+
+### Source
+
+source
+
+### TensorFlow version
+
+2.18.0
+
+### Custom code
+
+Yes
+
+### OS platform and distribution
+
+linux ubuntu 22.04
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+3.10
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+_No response_
+
+### GPU model and memory
+
+_No response_
+
+### Current behavior?
+
+tensorflow error in pycharm in ubuntu 22.04
+![image](https://github.com/user-attachments/assets/1a13794b-9a9d-44b4-b81d-5ad3f585b814)
+it's error in pycharm,but the code is correct and can run corretly
+
+### Standalone code to reproduce the issue
+
+```shell
+import numpy as np
+import matplotlib
+import tensorflow.python.keras.models
+
+matplotlib.use('agg')
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress TensorFlow logs
+from tensorflow.python import keras
+from tensorflow.keras import backend as K
+from tensorflow.keras.layers import (
+    Add, Activation, LSTM, Conv1D, MaxPooling1D, UpSampling1D,
+    Cropping1D, SpatialDropout1D, Bidirectional, BatchNormalization,add,InputSpec,
+LayerNormalization,Layer, Dense, Dropout
+)
+from tensorflow.keras.optimizers import Adam
+import tensorflow as tf
+from tensorflow import keras
+```
+
+
+### Relevant log output
+
+_No response_"
+2726793015,82526,Linking an Android static library with TFLite GPU using CMake causes undefined symbol errors and can not get the correct install,closed,2024-12-09 11:39:32+00:00,2024-12-26T06:30:48Z,2024-12-24T08:27:20Z,gaikwadrahul8,,https://github.com/tensorflow/tensorflow/issues/82526,"['type:bug', 'comp:lite', 'TFLiteGpuDelegate', 'TF 2.18']","['and when set TFLITE_ENABLE_INSTALL=ON, how to get the full tflite envirment for dev other codes, after exec ""sudo make install""?', 'libkleidiai.a  need copy to install lib, or libxnnpack.a will be ld error', 'INFO: Initialized TensorFlow Lite runtime.\r\nINFO: Created TensorFlow Lite delegate for GPU.\r\nINFO: Loaded OpenCL library with dlopen.\r\nVERBOSE: Replacing 118 out of 118 node(s) with delegate (TfLiteGpuDelegateV2) node, yielding 1 partitions for the whole graph.\r\nERROR: TfLiteGpuDelegate Init: PRELU: Expected a 3D tensor of shape HxWxC or a 4D tensor of shape 1xHxWxC but got\r\nINFO: Created 0 GPU delegate kernels.\r\nERROR: TfLiteGpuDelegate Prepare: delegate is not initialized\r\nERROR: Node number 118 (TfLiteGpuDelegateV2) failed to prepare.\r\nERROR: Restored original execution plan after delegate application failure.\r\nCould not setup GPU delegate', 'Hi, @alexliyang\r\n\r\nI apologize for the delayed response, In Android TensorFlow Lite GPU delegate requires `OpenGL` `ES` and `EGL` for managing the GPU context. To fix the undefined symbol errors you need to make sure that the appropriate `OpenGL` `ES` and `EGL` libraries are linked. This can be done by modifying your `CMakeLists.txt` to include these libraries something like below please refer this similar issue https://github.com/tensorflow/tensorflow/issues/61312 and [TensorFlow Lite C++ minimal example](https://github.com/tensorflow/tensorflow/tree/v2.18.0/tensorflow/lite/examples/minimal) which may help you to solve your issue.\r\n\r\n\r\n```\r\ntarget_link_libraries (${PROJECT_NAME}\r\n        PUBLIC\r\n          tensorflow-lite\r\n          GLESv3\r\n          EGL\r\n          android\r\n)\r\n```\r\nIf issue still persists or Am I missing something here please let me know ?\r\nThank you for your cooperation and patience.', '@gaikwadrahul8 Thank you for your response, I refer issue #61312 and other repo to modify the CMakeLists.txt, now I can get the libtensorflow-lite.a , and all ld errors have been fixed.\r\nBut I get another error like following , the op PReLu is not supported in tensorflow-lite version 2.18.0?\r\nINFO: Initialized TensorFlow Lite runtime.\r\nINFO: Created TensorFlow Lite delegate for GPU.\r\nINFO: Loaded OpenCL library with dlopen.\r\nVERBOSE: Replacing 118 out of 118 node(s) with delegate (TfLiteGpuDelegateV2) node, yielding 1 partitions for the whole graph.\r\nERROR: TfLiteGpuDelegate Init: PRELU: Expected a 3D tensor of shape HxWxC or a 4D tensor of shape 1xHxWxC but got\r\nINFO: Created 0 GPU delegate kernels.\r\nERROR: TfLiteGpuDelegate Prepare: delegate is not initialized\r\nERROR: Node number 118 (TfLiteGpuDelegateV2) failed to prepare.\r\nERROR: Restored original execution plan after delegate application failure.\r\nCould not setup GPU delegate\r\n![image](https://github.com/user-attachments/assets/13932146-659f-4a71-9d0a-5994dcebe285)\r\n\r\nI check the model, all PReLu are 4D tensor of shape 1xHxWxC. but get the errors.', 'I find #39749 discuss this problem, but Now version 2.18.0 is ocurred , how to correct it ?', ""Hi, @alexliyang \r\nI apologize for the delayed response, I checked the [official documentation](https://ai.google.dev/edge/litert/performance/gpu) and it supports `PRELU` Op if you don't mind could you please give it try by downgrading the TensorFlow version to `2.17.1 or 2.16.1` and see is it working as expected or not ?\r\n\r\nIf you've have PyTorch model and want to convert to TensorFlow Lite then you can use [ai-edge-torch](https://github.com/google-ai-edge/ai-edge-torch) which is a python library that supports converting PyTorch models into a .tflite format, which can then be run with TensorFlow Lite and MediaPipe. This enables applications for Android, iOS and IOT that can run models completely on-device. AI Edge Torch offers broad CPU coverage, with initial GPU and NPU support. AI Edge Torch seeks to closely integrate with PyTorch, building on top of torch.export() and providing good coverage of Core ATen operators.\r\n\r\n\r\n\r\nIf issue still persists please let us know with updated error log for further investigation from our end.\r\n\r\nThank you for your cooperation and patience."", 'I check the model, maybe the torch model convert to tflite, prelu op need to be reshaped to hwc or 1hwc . I use flatc to handle the  model ,then the model can be loaded correctly.\r\nthank you very much!', 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/82526"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/82526"">No</a>\n']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+No
+
+### Source
+
+source
+
+### TensorFlow version
+
+tf2.18
+
+### Custom code
+
+Yes
+
+### OS platform and distribution
+
+Ubuntu 20.04.6 LTS
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+_No response_
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+_No response_
+
+### GPU model and memory
+
+_No response_
+
+### Current behavior?
+
+Linking an Android library with libtensorflow-lite.a using CMake with GPU delegate enabled causes undefined symbol errors
+and can make install to get a complete include envirment.
+
+### Standalone code to reproduce the issue
+
+```shell
+before cmake, do some changes:
+tensorflow-2.18.0\tensorflow\lite\tools\cmake\modules\ml_dtypes\cmakelists.txt:
+target_include_directories(ml_dtypes INTERFACE
+  ""
+$<BUILD_INTERFACE:$
+{ML_DTYPES_SOURCE_DIR}>"" ""
+$<INSTALL_INTERFACE:$
+{CMAKE_INSTALL_INCLUDEDIR}>""
+  ""$<BUILD_INTERFACE:${ML_DTYPES_SOURCE_DIR}/ml_dtypes>"" ""$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/ml_dtypes>"")
+
+tensorflow-2.18.0\tensorflow\lite\cmakelists.txt:
+change like https://github.com/tensorflow/tensorflow/issues/61312
+
+although do these changes, errors occured like the following log output.
+
+step1:
+cmake ../tensorflow-2.18.0/tensorflow/lite -DCMAKE_TOOLCHAIN_FILE=/home/public/tflite/android-ndk-r25c/build/cmake/android.toolchain.cmake \
+     -DTFLITE_ENABLE_GPU=ON -DXNNPACK_ENABLE_ARM_BF16=OFF -DANDROID_ABI=arm64-v8a  -DANDROID_PLATFORM=26  \
+	 -DTFLITE_HOST_TOOLS_DIR=/home/public/tflite/flatbuffers-master/build/ \
+	 -DFLATBUFFERS_FLATC_EXECUTABLE=/home/public/tflite/flatbuffers-master/build/flatc \
+     -DTFLITE_ENABLE_INSTALL=ON  -DXNNPACK_ENABLE_ARM_BF16=OFF\
+     -DCMAKE_INSTALL_PREFIX=/home/pulic/tflite/local_install
+step2: cmake --build . -j
+step3: sudo make install
+step4: cmake --build . -j -t benchmark_model
+```
+
+
+### Relevant log output
+
+```shell
+after step1:
+CMake Error: install(EXPORT ""tensorflow-liteTargets"" ...) includes target ""tensorflow-lite"" which requires target ""eigen"" that is not in any export set.
+CMake Error: install(EXPORT ""tensorflow-liteTargets"" ...) includes target ""tensorflow-lite"" which requires target ""absl_flags"" that is not in any export set.
+CMake Error: install(EXPORT ""tensorflow-liteTargets"" ...) includes target ""tensorflow-lite"" which requires target ""absl_hash"" that is not in any export set.
+CMake Error: install(EXPORT ""tensorflow-liteTargets"" ...) includes target ""tensorflow-lite"" which requires target ""absl_status"" that is not in any export set.
+CMake Error: install(EXPORT ""tensorflow-liteTargets"" ...) includes target ""tensorflow-lite"" which requires target ""absl_strings"" that is not in any export set.
+CMake Error: install(EXPORT ""tensorflow-liteTargets"" ...) includes target ""tensorflow-lite"" which requires target ""absl_synchronization"" that is not in any export set.
+CMake Error: install(EXPORT ""tensorflow-liteTargets"" ...) includes target ""tensorflow-lite"" which requires target ""absl_variant"" that is not in any export set.
+CMake Error: install(EXPORT ""tensorflow-liteTargets"" ...) includes target ""tensorflow-lite"" which requires target ""ruy"" that is not in any export set.
+CMake Error: install(EXPORT ""tensorflow-liteTargets"" ...) includes target ""tensorflow-lite"" which requires target ""pthreadpool"" that is not in any export set.
+CMake Error: install(EXPORT ""tensorflow-liteTargets"" ...) includes target ""tensorflow-lite"" which requires target ""absl_any"" that is not in any export set.
+CMake Error: install(EXPORT ""tensorflow-liteTargets"" ...) includes target ""tensorflow-lite"" which requires target ""absl_flat_hash_map"" that is not in any export set.
+CMake Error: install(EXPORT ""tensorflow-liteTargets"" ...) includes target ""tensorflow-lite"" which requires target ""xnnpack-delegate"" that is not in any export set.
+CMake Error: install(EXPORT ""tensorflow-liteTargets"" ...) includes target ""tensorflow-lite"" which requires target ""XNNPACK"" that is not in any export set.
+
+after step4:
+[ 97%] Linking CXX executable benchmark_model
+ld: error: undefined symbol: eglGetProcAddress
+>>> referenced by async_buffers.cc:35 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/async_buffers.cc:35)
+>>>               async_buffers.cc.o:(tflite::gpu::AsyncBuffer::MapAHardwareBufferToGlBuffer()) in archive ../../libtensorflow-lite.a
+>>> referenced by async_buffers.cc:38 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/async_buffers.cc:38)
+>>>               async_buffers.cc.o:(tflite::gpu::AsyncBuffer::MapAHardwareBufferToGlBuffer()) in archive ../../libtensorflow-lite.a
+>>> referenced by android_sync.cc:33 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/android_sync.cc:33)
+>>>               android_sync.cc.o:((anonymous namespace)::IsGlSupported()::$_0::operator()() const) in archive ../../libtensorflow-lite.a
+>>> referenced 3 more times
+
+ld: error: undefined symbol: glGenBuffers
+>>> referenced by async_buffers.cc:72 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/async_buffers.cc:72)
+>>>               async_buffers.cc.o:(tflite::gpu::AsyncBuffer::AllocateOpenGlBuffer()) in archive ../../libtensorflow-lite.a
+
+ld: error: undefined symbol: glBindBuffer
+>>> referenced by async_buffers.cc:73 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/async_buffers.cc:73)
+>>>               async_buffers.cc.o:(tflite::gpu::AsyncBuffer::AllocateOpenGlBuffer()) in archive ../../libtensorflow-lite.a
+>>> referenced by async_buffers.cc:85 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/async_buffers.cc:85)
+>>>               async_buffers.cc.o:(tflite::gpu::AsyncBuffer::AllocateOpenGlBuffer()) in archive ../../libtensorflow-lite.a
+
+ld: error: undefined symbol: glBufferData
+>>> referenced by async_buffers.cc:83 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/async_buffers.cc:83)
+>>>               async_buffers.cc.o:(tflite::gpu::AsyncBuffer::AllocateOpenGlBuffer()) in archive ../../libtensorflow-lite.a
+
+ld: error: undefined symbol: eglGetDisplay
+>>> referenced by android_sync.cc:59 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/android_sync.cc:59)
+>>>               android_sync.cc.o:(tflite::gpu::gl::WaitFdGpu(int)) in archive ../../libtensorflow-lite.a
+>>> referenced by android_sync.cc:82 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/android_sync.cc:82)
+>>>               android_sync.cc.o:(tflite::gpu::gl::CreateFdGpu()) in archive ../../libtensorflow-lite.a
+>>> referenced by gl_call.h:84 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/gl_call.h:84)
+>>>               egl_environment.cc.o:(tflite::gpu::gl::EglEnvironment::Init()) in archive ../../libtensorflow-lite.a
+>>> referenced 1 more times
+
+ld: error: undefined symbol: glFinish
+>>> referenced by android_sync.cc:97 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/android_sync.cc:97)
+>>>               android_sync.cc.o:(tflite::gpu::gl::CreateFdGpu()) in archive ../../libtensorflow-lite.a
+
+ld: error: undefined symbol: glGetError
+>>> referenced by gl_errors.cc:67 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/gl_errors.cc:67)
+>>>               gl_errors.cc.o:(tflite::gpu::gl::GetOpenGlErrors()) in archive ../../libtensorflow-lite.a
+>>> referenced by gl_errors.cc:71 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/gl_errors.cc:71)
+>>>               gl_errors.cc.o:(tflite::gpu::gl::GetOpenGlErrors()) in archive ../../libtensorflow-lite.a
+>>> referenced by gl_errors.cc:76 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/gl_errors.cc:76)
+>>>               gl_errors.cc.o:(tflite::gpu::gl::GetOpenGlErrors()) in archive ../../libtensorflow-lite.a
+>>> referenced 1 more times
+
+ld: error: undefined symbol: eglGetError
+>>> referenced by gl_errors.cc:84 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/gl_errors.cc:84)
+>>>               gl_errors.cc.o:(tflite::gpu::gl::GetEglError()) in archive ../../libtensorflow-lite.a
+
+ld: error: undefined symbol: eglBindAPI
+>>> referenced by gl_call.h:84 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/gl_call.h:84)
+>>>               egl_environment.cc.o:(tflite::gpu::gl::EglEnvironment::Init()) in archive ../../libtensorflow-lite.a
+>>> referenced by gl_call.h:84 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/gl_call.h:84)
+>>>               egl_environment.cc.o:(tflite::gpu::gl::EglEnvironment::Init()) in archive ../../libtensorflow-lite.a
+
+ld: error: undefined symbol: eglGetCurrentContext
+>>> referenced by egl_environment.cc:75 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/egl_environment.cc:75)
+>>>               egl_environment.cc.o:(tflite::gpu::gl::EglEnvironment::Init()) in archive ../../libtensorflow-lite.a
+>>> referenced by egl_environment.cc:78 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/egl_environment.cc:78)
+>>>               egl_environment.cc.o:(tflite::gpu::gl::EglEnvironment::Init()) in archive ../../libtensorflow-lite.a
+
+ld: error: undefined symbol: eglGetCurrentDisplay
+>>> referenced by egl_environment.cc:76 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/egl_environment.cc:76)
+>>>               egl_environment.cc.o:(tflite::gpu::gl::EglEnvironment::Init()) in archive ../../libtensorflow-lite.a
+
+ld: error: undefined symbol: eglInitialize
+>>> referenced by gl_call.h:84 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/gl_call.h:84)
+>>>               egl_environment.cc.o:(tflite::gpu::gl::EglEnvironment::Init()) in archive ../../libtensorflow-lite.a
+>>> referenced by gl_call.h:84 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/gl_call.h:84)
+>>>               egl_environment.cc.o:(tflite::gpu::gl::EglEnvironment::Init()) in archive ../../libtensorflow-lite.a
+
+ld: error: undefined symbol: glDeleteFramebuffers
+>>> referenced by egl_environment.cc:59 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/egl_environment.cc:59)
+>>>               egl_environment.cc.o:(tflite::gpu::gl::EglEnvironment::~EglEnvironment()) in archive ../../libtensorflow-lite.a
+
+ld: error: undefined symbol: glDeleteTextures
+>>> referenced by egl_environment.cc:62 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/egl_environment.cc:62)
+>>>               egl_environment.cc.o:(tflite::gpu::gl::EglEnvironment::~EglEnvironment()) in archive ../../libtensorflow-lite.a
+
+ld: error: undefined symbol: glGenFramebuffers
+>>> referenced by egl_environment.cc:132 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/egl_environment.cc:132)
+>>>               egl_environment.cc.o:(tflite::gpu::gl::EglEnvironment::ForceSyncTurning()) in archive ../../libtensorflow-lite.a
+
+ld: error: undefined symbol: glBindFramebuffer
+>>> referenced by egl_environment.cc:133 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/egl_environment.cc:133)
+>>>               egl_environment.cc.o:(tflite::gpu::gl::EglEnvironment::ForceSyncTurning()) in archive ../../libtensorflow-lite.a
+
+ld: error: undefined symbol: glGenTextures
+>>> referenced by egl_environment.cc:135 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/egl_environment.cc:135)
+>>>               egl_environment.cc.o:(tflite::gpu::gl::EglEnvironment::ForceSyncTurning()) in archive ../../libtensorflow-lite.a
+
+ld: error: undefined symbol: glBindTexture
+>>> referenced by egl_environment.cc:136 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/egl_environment.cc:136)
+>>>               egl_environment.cc.o:(tflite::gpu::gl::EglEnvironment::ForceSyncTurning()) in archive ../../libtensorflow-lite.a
+
+ld: error: undefined symbol: glFramebufferTexture2D
+>>> referenced by egl_environment.cc:138 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/egl_environment.cc:138)
+>>>               egl_environment.cc.o:(tflite::gpu::gl::EglEnvironment::ForceSyncTurning()) in archive ../../libtensorflow-lite.a
+
+ld: error: undefined symbol: glViewport
+>>> referenced by egl_environment.cc:144 (/home/public/tflite/tensorflow-2.18.0/tensorflow/lite/delegates/gpu/gl/egl_environment.cc:144)
+>>>               egl_environment.cc.o:(tflite::gpu::gl::EglEnvironment::ForceSyncTurning()) in archive ../../libtensorflow-lite.a
+
+ld: error: too many errors emitted, stopping now (use -error-limit=0 to see all errors)
+clang++: error: linker command failed with exit code 1 (use -v to see invocation)
+make[3]: *** [tools/benchmark/CMakeFiles/benchmark_model.dir/build.make:682: tools/benchmark/benchmark_model] Error 1
+make[2]: *** [CMakeFiles/Makefile2:9168: tools/benchmark/CMakeFiles/benchmark_model.dir/all] Error 2
+make[1]: *** [CMakeFiles/Makefile2:9175: tools/benchmark/CMakeFiles/benchmark_model.dir/rule] Error 2
+make: *** [Makefile:2652: benchmark_model] Error 2
+```
+"
+2730334124,82669,TF 2.18 fails to use GPU,closed,2024-12-10 14:47:43+00:00,2024-12-10T15:34:49Z,2024-12-10T15:34:35Z,tilakrayal,,https://github.com/tensorflow/tensorflow/issues/82669,['type:bug'],"['I was able to run the code after I updated the path to LD_LIBRARY_PATH.\r\n\r\nThereore I am closing this issue. ', 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/82669"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/82669"">No</a>\n', 'I was able to run the code after I updated the path to LD_LIBRARY_PATH.\r\n\r\nThereore I am closing this issue.']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+No
+
+### Source
+
+binary
+
+### TensorFlow version
+
+TF 2.18
+
+### Custom code
+
+No
+
+### OS platform and distribution
+
+Linux Ubuntu 22.04.4 LTS
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+3.12.3
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+CUDA 12.6; CUDNN 9.0  
+
+### GPU model and memory
+
+NVIDIA GeForce RTX 3060  12 GBs
+
+### Current behavior?
+
+
+TF fails to connect to the GPU card on some operations. Specifically, it fails with the code from the TF Basics tutorials, located at   https://www.tensorflow.org/guide/basics : 
+
+""history = new_model.fit(x, y,
+                        epochs=100,
+                        batch_size=32,
+                        verbose=0)
+""
+
+The error is 
+
+""
+DNN library initialization failed. Look at the errors above for more details.
+\t [[{{node StatefulPartitionedCall}}]] [Op:__inference_multi_step_on_iterator_24212]""
+""
+
+2. The code below returns :
+
+print(""Python version: "", sys.version)
+print(""TensorFlow version: "", tf.__version__)
+print(tf.config.list_physical_devices('GPU'))
+print(""Num GPUs Available: "", len(tf.config.list_physical_devices('GPU')))
+
+The result returned is:
+
+Python Version : 3.12.3 [GCC 13.2.0]
+TensorFlow version: 2.18.0
+[PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')]
+Num GPUs Available: 1
+
+If I understand this correctly, TF is telling me that it found ! GPU Device, but it is not able to connect.
+
+Just FYI, PyTorch and Julia can use the GPU with no problem. Therefore I assume the problem is with TF, not with my system.
+
+
+
+### Standalone code to reproduce the issue
+
+```shell
+import sys
+
+# several messages are displayed when TF is imported in a local system
+import tensorflow as tf
+
+
+x = tf.linspace(-2, 2, 201)
+x = tf.cast(x, tf.float32)
+
+def f(x):
+  y = x**2 + 2*x - 5
+  return y
+
+y = f(x) + tf.random.normal(shape=[201])
+
+plt.plot(x.numpy(), y.numpy(), '.', label='Data')
+plt.plot(x, f(x), label='Ground truth')
+plt.legend();
+
+
+
+class Model(tf.Module):
+
+  def __init__(self):
+    # Randomly generate weight and bias terms
+    rand_init = tf.random.uniform(shape=[3], minval=0., maxval=5., seed=22)
+    # Initialize model parameters
+    self.w_q = tf.Variable(rand_init[0])
+    self.w_l = tf.Variable(rand_init[1])
+    self.b = tf.Variable(rand_init[2])
+  
+  @tf.function
+  def __call__(self, x):
+    # Quadratic Model : quadratic_weight * x^2 + linear_weight * x + bias
+    return self.w_q * (x**2) + self.w_l * x + self.b
+
+
+new_model = tf.keras.Sequential([
+    tf.keras.layers.Lambda(lambda x: tf.stack([x, x**2], axis=1)),
+    tf.keras.layers.Dense(units=1, kernel_initializer=tf.random.normal)])
+
+
+print(""Python version: "", sys.version)
+print(""TensorFlow version: "", tf.__version__)
+print(tf.config.list_physical_devices('GPU'))
+print(""Num GPUs Available: "", len(tf.config.list_physical_devices('GPU')))
+
+
+new_model.compile(
+    loss=tf.keras.losses.MSE,
+    optimizer=tf.keras.optimizers.SGD(learning_rate=0.01))
+
+### ERROR HERE 
+history = new_model.fit(x, y,
+                        epochs=100,
+                        batch_size=32,
+                        verbose=0)
+```
+
+
+### Relevant log output
+
+```shell
+DNN library initialization failed. Look at the errors above for more details.
+\t [[{{node StatefulPartitionedCall}}]] [Op:__inference_multi_step_on_iterator_24212]""
+```
+"
+2739719597,82973,undefined symbol: tflite::StatefulNnApiDelegate::StatefulNnApiDelegate(tflite::StatefulNnApiDelegate::Options),closed,2024-12-14 09:11:22+00:00,2025-01-10T08:13:05Z,2024-12-20T11:18:16Z,gaikwadrahul8,,https://github.com/tensorflow/tensorflow/issues/82973,"['type:bug', 'comp:lite', 'TF 2.18']","['I tried the following script to set more NNAPI-related parameters, but it still didn\'t work\r\n\r\nReference link: [https://github.com/tensorflow/tensorflow/tree/master/tensorflow/lite/tools/delegates#nnapi-delegate-provider](url)\r\n\r\n```\r\nbazel build -c opt \\\r\n  --config=android_arm \\\r\n  --repo_env=HERMETIC_PYTHON_VERSION=3.12 \\\r\n  --define tflite_with_nnapi=true \\\r\n  --define use_nnapi=true \\\r\n  --define nnapi_accelerator_name="""" \\\r\n  --define nnapi_execution_preference=""low_power"" \\\r\n  --define nnapi_execution_priority=""high"" \\\r\n  --define nnapi_allow_fp16=false \\\r\n  --define nnapi_allow_dynamic_dimensions=false \\\r\n  --define nnapi_use_burst_mode=true \\\r\n  --verbose_failures \\\r\n  tensorflow/lite:libtensorflowlite.so\r\n```', 'Is there any tutorial for building LiteRT for Android?', ""Hi, @angelOnly \r\nThank you for trying script to set more NNAPI-related parameters but it didn't work so if you don't mind could you please downgrade the TensorFlow version to either 2.17.* or 2.16.* and see is it working fine or not ?\r\n\r\nWe have updated official documentation w.r.t LiteRT Delegates please refer [here](https://ai.google.dev/edge/litert/performance/delegates) and for GPU delegates for LiteRT and GPU ML operations support please refer this [official documentation](https://ai.google.dev/edge/litert/performance/gpu)\r\n\r\nTo migrate from NNAPI, see the instructions for [TensorFlow Lite in Google Play Services](https://www.tensorflow.org/lite/android/play_services) and optionally [TFLite GPU delegate](https://www.tensorflow.org/lite/android/delegates/gpu) for hardware acceleration please refer this [NNAPI Migration Guide](https://developer.android.com/ndk/guides/neuralnetworks/migration-guide)\r\n\r\nHi, @yg-dickson, Please refer this LiteRT [examples](https://github.com/tensorflow/examples/tree/master/lite/examples) of android and official documentation of [Build LiteRT for Android](https://ai.google.dev/edge/litert/android/lite_build)\r\n\r\n\r\nThank you for your cooperation and patience.\r\n"", ""Hello, thank you very much for your reply! \r\nI have read the example you gave. This is the compilation process of java inference, while I use c++ inference, which needs to compile the.so package instead of.aar. And I hope to support nnapi delegate. I don't know how to fix it.\r\n\r\n> Hi, @angelOnly Thank you for trying script to set more NNAPI-related parameters but it didn't work so if you don't mind could you please downgrade the TensorFlow version to either 2.17.* or 2.16.* and see is it working fine or not ?\r\n> \r\n> Hi, @yg-dickson, Please refer this LiteRT [examples](https://github.com/tensorflow/examples/tree/master/lite/examples) of android and official documentation of [Build LiteRT for Android](https://ai.google.dev/edge/litert/android/lite_build)\r\n> \r\n> Thank you for your cooperation and patience."", ""> Is there any tutorial for building LiteRT for Android?\r\n\r\nI can't find any relevant courses. Do you have any recommendations"", 'I have determined where the problem is, because the model does not support some operators of nnapi, resulting in GPU acceleration, but I still failed to compile and open nnapi, I used the gpu delegate to verify this problem.\r\nDownload the official posenet model verification, can be gpu accelerated, and our model does not support gpu acceleration\r\n\r\nnnapi support opt：https://www.tensorflow.org/lite/android/delegates/nnapi?hl=zh-cn#use_supported_models_and_ops\r\ngpu delegate Compiled.so package：https://github.com/ValYouW/tflite-dist/releases\r\n![image](https://github.com/user-attachments/assets/7e7068b1-9040-4de8-8c96-9a8978d6c278)\r\n<img width=""1298"" alt=""image"" src=""https://github.com/user-attachments/assets/758adafa-6ba0-45bd-80e5-bd6e53f5f1de"" />\r\n![image](https://github.com/user-attachments/assets/4069972b-2b77-441b-8db5-37035e890fb5)\r\n', 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/82973"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/82973"">No</a>\n', ""> Hi, @angelOnly Thank you for trying script to set more NNAPI-related parameters but it didn't work so if you don't mind could you please downgrade the TensorFlow version to either 2.17.* or 2.16.* and see is it working fine or not ?\r\n> \r\n> Hi, @yg-dickson, Please refer this LiteRT [examples](https://github.com/tensorflow/examples/tree/master/lite/examples) of android and official documentation of [Build LiteRT for Android](https://ai.google.dev/edge/litert/android/lite_build)\r\n> \r\n> Thank you for your cooperation and patience.\r\n\r\nFollowing this tutorial, I cannot build\r\ncom.google.ai.edge.litert:litert\r\ncom.google.ai.edge.litert:litert-gpu"", 'Hi, @yg-dickson \r\nApologize for the delayed response, could you please create new issue here :https://github.com/google-ai-edge/LiteRT/issues/new and mention what all steps you followed in that issue ? we will be happy to help you further. \r\n\r\nThank you for your cooperation and understanding.', 'LiteRT No one answered']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+Yes
+
+### Source
+
+source
+
+### TensorFlow version
+
+2.18
+
+### Custom code
+
+Yes
+
+### OS platform and distribution
+
+_No response_
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+3.12
+
+### Bazel version
+
+6.5
+
+### GCC/compiler version
+
+14.2
+
+### CUDA/cuDNN version
+
+_No response_
+
+### GPU model and memory
+
+_No response_
+
+### Current behavior?
+
+When I was compiling my own cpp file with ndk-build, I reported the following error
+```
+ld: error: undefined symbol: tflite::StatefulNnApiDelegate::StatefulNnApiDelegate(tflite::StatefulNnApiDelegate::Options)
+>>> referenced by TFLiteEngine.cpp:77
+>>>               /Users/jiang/Downloads/ifeng/java/NdkBuilderne/app/src/main/obj/local/armeabi-v7a/objs/pose2dto3d_armeabi-v7a/TFLiteEngine.o:(TFLiteEngine::loadModel(AAssetManager*))
+clang++: error: linker command failed with exit code 1 (use -v to see invocation
+```
+
+**compileSdkVersion 33**
+**buildToolsVersion '30.0.3'**
+**ndk.dir=/Users/jiang/Library/Android/sdk/ndk/22.1.7171670**
+
+bazel shell
+```
+bazel build -c opt --config=android_arm --repo_env=HERMETIC_PYTHON_VERSION=3.12  --define tflite_with_nnapi=true --verbose_failures tensorflow/lite:libtensorflowlite.so
+```
+
+Android.mk
+```
+LOCAL_PATH := $(call my-dir)
+
+cur_arch=armeabi-v7a
+LOCAL_CPPFLAGS := -g
+
+# 第三方.so
+include $(CLEAR_VARS)
+LOCAL_MODULE := libtensorflowlite
+LOCAL_SRC_FILES := third/android/$(cur_arch)/lib/libtensorflowlite.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+# 自己的c代码
+include $(CLEAR_VARS)
+LOCAL_MODULE    := pose2dto3d_$(cur_arch)
+MY_C_LIST := $(wildcard $(LOCAL_PATH)/TFLiteEngineJNI.cpp)
+MY_C_LIST += $(wildcard $(LOCAL_PATH)/TFLiteEngine.cpp)
+MY_C_LIST += $(wildcard $(LOCAL_PATH)/DataProcess.cpp)
+LOCAL_SRC_FILES := $(MY_C_LIST:$(LOCAL_PATH)/%=%)
+
+# 第三方头文件
+# tflite
+MY_ALL_DIRS := $(wildcard $(LOCAL_PATH)/)
+MY_ALL_DIRS += $(wildcard $(LOCAL_PATH)/third/android/$(cur_arch)/include)
+LOCAL_C_INCLUDES := $(MY_ALL_DIRS)
+
+LOCAL_LDLIBS += -llog -lz -landroid -lOpenSLES -lGLESv1_CM -lGLESv2 -lneuralnetworks
+
+LOCAL_STATIC_LIBRARIES := libtensorflowlite
+
+LOCAL_CFLAGS += -UNDEBUG -D_DEBUG
+include $(BUILD_SHARED_LIBRARY)
+```
+
+Application.mk
+```
+APP_OPTIM :=release
+APP_ABI := armeabi-v7a
+APP_PLATFORM := android-27
+APP_STL := c++_static
+```
+
+.cpp
+```
+# include <stdio.h>
+# include <stdlib.h>
+#include <android/asset_manager_jni.h>
+#include <android/asset_manager.h>
+#include <android/log.h>
+# include <jni.h>
+#include <sys/uio.h>
+#include <cstdlib>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include ""tensorflow/lite/interpreter.h""
+#include ""tensorflow/lite/model.h""
+#include ""tensorflow/lite/kernels/register.h""
+#include ""tensorflow/lite/optional_debug_tools.h""
+#include ""tensorflow/lite/interpreter_builder.h""
+#include ""tensorflow/lite/model_builder.h""
+#include ""tensorflow/lite/delegates/nnapi/nnapi_delegate.h""
+#include ""TFLiteEngine.h""
+#include ""Pose3dModel.h""
+
+
+TFLiteEngine::TFLiteEngine() {
+    is_tflite_initialized = false;
+}
+
+TFLiteEngine::~TFLiteEngine() {}
+
+void TFLiteEngine::loadModel(AAssetManager *mgr) {
+    __android_log_print(ANDROID_LOG_DEBUG, ""POSE_3D_CPP"",
+                        ""..................Entering loadModel...................."");
+
+    if (!pose3dModel.is_tflite_initialized) {
+        pose3dModel.asset = AAssetManager_open(mgr, MODEL_PATH, AASSET_MODE_BUFFER);
+        if (pose3dModel.asset == nullptr) {
+            __android_log_print(ANDROID_LOG_DEBUG, ""POSE_3D_CPP"", ""pose3dInference asset null----"");
+            exit(1);
+        }
+
+        // 获取文件的大小
+        off_t file_length = AAsset_getLength(pose3dModel.asset);
+        // 从资产中读取数据到内存
+        std::vector<char> model_data(file_length);
+        AAsset_read(pose3dModel.asset, model_data.data(), file_length);
+
+        // 1，创建模型和解释器对象，并加载模型
+        pose3dModel.model = tflite::FlatBufferModel::BuildFromBuffer(model_data.data(),
+                                                                     model_data.size());
+        if (!pose3dModel.model) {
+            __android_log_print(ANDROID_LOG_DEBUG, ""POSE_3D_CPP"",
+                                ""pose3dInference 加载模型失败----"");
+            exit(1);
+        }
+
+        __android_log_print(ANDROID_LOG_DEBUG, ""POSE_3D_CPP"", ""pose3dInference 加载模型成功----"");
+
+        tflite::InterpreterBuilder builder(*(pose3dModel.model.get()), pose3dModel.resolver);
+        builder(&(pose3dModel.interpreter));
+
+        if (!pose3dModel.interpreter) {
+            __android_log_print(ANDROID_LOG_DEBUG, ""POSE_3D_CPP"",
+                                ""pose3dInference interpreter null----"");
+            exit(1);
+        }
+
+        if (NUM_THREADS != -1) {
+            pose3dModel.interpreter->SetNumThreads(NUM_THREADS);
+        }
+
+        // NNAPi设置
+        tflite::StatefulNnApiDelegate::Options options;
+        options.execution_preference = tflite::StatefulNnApiDelegate::Options::kSustainedSpeed;
+        options.use_burst_computation = true;
+        options.allow_fp16 = true;
+
+        if ((pose3dModel.delegate = new tflite::StatefulNnApiDelegate(options)) == NULL) {
+            __android_log_print(ANDROID_LOG_DEBUG, ""POSE_3D_CPP"", ""pose3dInference NNAPI delegate error----"");
+            exit(1);
+        }
+
+        if (pose3dModel.delegate != NULL) {
+            TfLiteStatus status = pose3dModel.interpreter->ModifyGraphWithDelegate(pose3dModel.delegate);
+            if (status != TfLiteStatus::kTfLiteOk)
+                __android_log_print(ANDROID_LOG_DEBUG, ""POSE_3D_CPP"", ""pose3dInference Failed to modify graph with delegate!----"");
+        }
+
+        if (pose3dModel.interpreter->AllocateTensors() != kTfLiteOk) {
+            __android_log_print(ANDROID_LOG_DEBUG, ""POSE_3D_CPP"",
+                                ""pose3dInference AllocateTensors ERROR----"");
+            exit(1);
+        }
+
+        pose3dModel.input = pose3dModel.interpreter->typed_input_tensor<float>(0);
+        if (pose3dModel.input == nullptr) {
+            __android_log_print(ANDROID_LOG_DEBUG, ""POSE_3D_CPP"", ""pose3dInference input null----"");
+            exit(1);
+        }
+        __android_log_print(ANDROID_LOG_DEBUG, ""POSE_3D_CPP"", ""pose3dInference 初始化input----"");
+
+        is_tflite_initialized = true;
+    }
+    __android_log_print(ANDROID_LOG_DEBUG, ""POSE_3D_CPP"",
+                        ""..................Exiting loadModel...................."");
+
+    if (pose3dModel.asset != nullptr) {
+        AAsset_close(pose3dModel.asset);
+    }
+}
+```
+
+### Standalone code to reproduce the issue
+
+```shell
+just ndk build my cpp
+
+ndk-build V=1
+```
+```
+
+
+### Relevant log output
+
+_No response_"
+2743957632,83119,keras.layers.GRU behaves differently in GPU and CPU,closed,2024-12-17 05:19:35+00:00,2024-12-27T06:44:26Z,2024-12-27T06:44:23Z,Venkat6871,,https://github.com/tensorflow/tensorflow/issues/83119,"['stat:awaiting response', 'type:bug', 'comp:keras', 'comp:ops', 'TF 2.18']","['Hi **@lwk8891** ,\r\nApologies for the delay, and thank you for raising your concern. I tried running your code on Colab using TensorFlow 2.18.0 with both CPU [gist](https://colab.sandbox.google.com/gist/Venkat6871/4c365dfcd83e2d3c2e2ebafa0479fcd6/83119_tf-2-18-0-cpu-v.ipynb) and GPU and faced the same issue. The reason behind this issue is that when running on a GPU, TensorFlow uses the cuDNN-optimized GRU kernel. Even if you set `implementation=2`, the output may still differ on the GPU because the GRU layer internally optimizes for cuDNN, which can unpack the batch dimension for hidden states.\r\n\r\nTo resolve this, you need to explicitly disable the cuDNN kernel for the GRU. I achieved this by setting `reset_after=False`, and it produced the expected results. Please find the [gist](https://colab.sandbox.google.com/gist/Venkat6871/78ae3171c3750f66b36298dbda06c94b/83119_tf_2-18-0-gpu-v.ipynb) here for your reference.\r\nThank you!', 'This issue is stale because it has been open for 7 days with no activity. It will be closed if no further activity occurs. Thank you.', '> Hi **@lwk8891** , Apologies for the delay, and thank you for raising your concern. I tried running your code on Colab using TensorFlow 2.18.0 with both CPU [gist](https://colab.sandbox.google.com/gist/Venkat6871/4c365dfcd83e2d3c2e2ebafa0479fcd6/83119_tf-2-18-0-cpu-v.ipynb) and GPU and faced the same issue. The reason behind this issue is that when running on a GPU, TensorFlow uses the cuDNN-optimized GRU kernel. Even if you set `implementation=2`, the output may still differ on the GPU because the GRU layer internally optimizes for cuDNN, which can unpack the batch dimension for hidden states.\r\n> \r\n> To resolve this, you need to explicitly disable the cuDNN kernel for the GRU. I achieved this by setting `reset_after=False`, and it produced the expected results. Please find the [gist](https://colab.sandbox.google.com/gist/Venkat6871/78ae3171c3750f66b36298dbda06c94b/83119_tf_2-18-0-gpu-v.ipynb) here for your reference. Thank you!\r\n\r\nThank you. It solved the problem.\r\nHowever, would setting `reset_after=False` affect the performance of the program by disabling the cuDNN kernel?', 'Hi **@lwk8891** ,\r\nGlad to see your issue is resolved. However, I suspect there might be a performance impact when using reset_after=False.\r\nThank you!', 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/83119"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/83119"">No</a>\n']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+Yes
+
+### Source
+
+binary
+
+### TensorFlow version
+
+tf 2.18, tf 2.19
+
+### Custom code
+
+Yes
+
+### OS platform and distribution
+
+WSL Ubuntu 22.04.5 LTS
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+3.12
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+12.6/9.6
+
+### GPU model and memory
+
+_No response_
+
+### Current behavior?
+
+The result of the following code is the length of the GRU output variable.
+
+The result is 2 when I executed the code with no GPU by `export CUDA_VISIBLE_DEVICES= `.  One is the output sequence, and the other is the state of GRU. However, the result is 5 = 1 + batch_size when I executed the code with GPU. The first is the output sequence, and the others are the state of GRU with batch unpacking.
+
+### Standalone code to reproduce the issue
+
+```shell
+import tensorflow as tf
+from tensorflow.keras.layers import GRU
+
+batch_size = 4
+time_steps = 10
+rnn_dimension = 16
+input_dim = 8
+
+x = tf.random.normal((batch_size, time_steps, input_dim))
+
+gru = GRU(rnn_dimension, return_sequences=True, return_state=True)
+
+gru_output = gru(x, training=True)
+print(len(gru_output))
+```
+
+
+### Relevant log output
+
+_No response_"
+2748241445,83279,transfer learning with TF hub,closed,2024-12-18 16:18:50+00:00,2024-12-30T13:22:34Z,2024-12-30T13:22:31Z,tilakrayal,,https://github.com/tensorflow/tensorflow/issues/83279,"['stat:awaiting response', 'type:bug', 'comp:apis', 'TF 2.18']","['@lincoln12833,\r\nHi, By default the colab notebook is using tensorflow v2.17 and v2.18 which contains keras3.0 which was causing the error. Could you please try to import keras2.0 with the below commands.\r\n\r\n```python\r\n!pip install tf-keras == 2.18.0\r\n\r\nimport tf_keras as keras\r\n```\r\n\r\nAlso I have modified some steps and then the code was executed without error/fail. Kindly find the gist of it [here](https://colab.research.google.com/gist/tilakrayal/a437f436540f2e799c37102e2fe7904b/transfer_learning_with_hub.ipynb).\r\nI have raised the PR in the Tensorflow/docs repo for the similar issue.\r\nhttps://github.com/tensorflow/docs/pull/2344\r\n\r\nThank you!', '![image](https://github.com/user-attachments/assets/a93d2add-5c97-48f5-8bfc-5edcfead09da)\r\nThe same configuration is running in the background, but it neither outputs nor ends.', 'I got that part working but I am getting the same error in this one after adding those lines https://github.com/lincoln12833/tensor_flow_hub_transfer_learning/blob/main/courses/udacity_intro_to_tensorflow_for_deep_learning/l06c01_tensorflow_hub_and_transfer_learning.ipynb @tilakrayal \r\n', '@lincoln12833,\r\nIn the code you are trying to import the keras as **import tf_keras as keras** and using tf.keras.sequential in the code. Could you try to change from layers.dense to keras.layers.dense and execute the code. In the above attached  gist, I have changed the tf.keras to keras, and try to execute the code.\r\n\r\nFrom:\r\n![image](https://github.com/user-attachments/assets/49b44cb4-9845-4624-a8a5-f954087419a8)\r\n\r\n\r\nTo:\r\n![image](https://github.com/user-attachments/assets/13a478df-4190-4a35-9017-66ed1c8898fa)\r\n\r\n\r\nThank you!\r\n\r\n\r\n', 'This issue is stale because it has been open for 7 days with no activity. It will be closed if no further activity occurs. Thank you.', 'Thank you so much for all your help tilakrayal. This seemed to have fixed it.', '@lincoln12833,\r\nGlad the issue was resolved. Could you please feel free to move this issue to closed status. Thank you!', 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/83279"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/83279"">No</a>\n']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+Yes
+
+### Source
+
+source
+
+### TensorFlow version
+
+tf 2.8
+
+### Custom code
+
+No
+
+### OS platform and distribution
+
+_No response_
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+_No response_
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+_No response_
+
+### GPU model and memory
+
+_No response_
+
+### Current behavior?
+
+If you use tensorflow_hub.KerasLayer(correct parmeters), in a squential model: it won't recognize it as an acceptable layer. 
+
+### Standalone code to reproduce the issue
+
+```shell
+https://www.tensorflow.org/tutorials/images/transfer_learning_with_hub
+```
+
+
+### Relevant log output
+
+```shell
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+<ipython-input-3-7db51c8d2d71> in <cell line: 3>()
+      1 IMAGE_SHAPE = (224, 224)
+      2 
+----> 3 classifier = tf.keras.Sequential([
+      4     hub.KerasLayer(classifier_model, input_shape=IMAGE_SHAPE+(3,))
+      5 ])
+
+1 frames
+/usr/local/lib/python3.10/dist-packages/keras/src/models/sequential.py in add(self, layer, rebuild)
+     94                 layer = origin_layer
+     95         if not isinstance(layer, Layer):
+---> 96             raise ValueError(
+     97                 ""Only instances of `keras.Layer` can be ""
+     98                 f""added to a Sequential model. Received: {layer} ""
+
+ValueError: Only instances of `keras.Layer` can be added to a Sequential model. Received: <tensorflow_hub.keras_layer.KerasLayer object at 0x7aafb7ccd2a0> (of type <class 'tensorflow_hub.keras_layer.KerasLayer'>)
+```
+"
+2749710114,83331,Problems with TFLite operator performance profiling,closed,2024-12-19 09:19:11+00:00,2025-01-24T21:08:57Z,2025-01-24T21:08:53Z,pkgoogle,,https://github.com/tensorflow/tensorflow/issues/83331,"['type:bug', 'comp:lite', 'TF 2.16']","['Hi, @pkgoogle\r\nPlease take a look into this issue. Thank you', 'Hello, we will be moving this issue to [LiteRT](https://github.com/google-ai-edge/LiteRT). Please follow progress there.', 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/83331"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/83331"">No</a>\n']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+Yes
+
+### Source
+
+binary
+
+### TensorFlow version
+
+tf 2.16.1
+
+### Custom code
+
+No
+
+### OS platform and distribution
+
+_No response_
+
+### Mobile device
+
+Android Google Pixel 6
+
+### Python version
+
+_No response_
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+_No response_
+
+### GPU model and memory
+
+_No response_
+
+### Current behavior?
+
+I want to profile the operator performance of my custom tflite model in android phone 'Google Pixel 6'.
+I have followed the tutorial [measurement](https://github.com/tensorflow/tensorflow/blob/2c2fa69bb57442e274777a277f7f8bb8256a5ef3/tensorflow/lite/g3doc/performance/measurement.md#trace-tensorflow-lite-internals) and built a very simple test program [[source code](https://github.com/4570235/LiteRTStarter)]. However, I encounter some problems.
+
+Firstly, when I tested the model '[mobilenetv1.tflite](https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/image_classification/android_java/mobilenet_v1_1.0_224_quantized_1_metadata_1.tflite)' from tflite example [image_classification](https://github.com/tensorflow/examples/tree/master/lite/examples/image_classification), if my program depends on the newest version of TFLite
+```groovy
+implementation 'org.tensorflow:tensorflow-lite:2.16.1'
+implementation 'org.tensorflow:tensorflow-lite-support:0.4.4'
+``` 
+then the Android Studio CPU Profiler shows 
+![image](https://github.com/user-attachments/assets/1f101ba0-07d4-48ce-a65f-be2974611766)
+
+I cannot see all the operators. After some testing, I figure out that the maximum version of TFLite that works is `tensorflow-lite:2.12.0` with `tensorflow-lite-support:0.4.0.`
+```groovy
+implementation 'org.tensorflow:tensorflow-lite:2.12.0'
+implementation 'org.tensorflow:tensorflow-lite-support:0.4.0'
+``` 
+Here's the result: 
+![image](https://github.com/user-attachments/assets/ef16d2a4-5430-41a1-8649-ad97b51888a0)
+
+**So, is this a bug? How can I trace operator performance with the newest version of TFLite?**
+
+Secondly, with `tensorflow-lite:2.12.0` and `tensorflow-lite-support:0.4.0` mentioned above, I tried to trace my custom model which is very similar to Qualcomm's '[quicksrnetsmall.tflite](https://aihub.qualcomm.com/models/quicksrnetsmall)'. Let's take 'quicksrnetsmall.tflite' as an sample and the Profiler shows
+![image](https://github.com/user-attachments/assets/2f45f1cd-afc7-443a-a1be-36cd3b10bc47)
+
+I cannot see any operators. **How can I fix it?**
+
+### Standalone code to reproduce the issue
+
+```shell
+https://github.com/4570235/LiteRTStarter/blob/master/app/src/main/java/com/handleychen/litertstarter/Benchmark.java
+```
+
+
+### Relevant log output
+
+_No response_"
+2751686092,83371,TF - Problems when trying to use GPU on M3 Max,closed,2024-12-20 00:55:58+00:00,2025-01-02T08:58:10Z,2025-01-02T08:58:06Z,Venkat6871,,https://github.com/tensorflow/tensorflow/issues/83371,"['stat:awaiting response', 'type:bug', 'TF 2.16']","['The issue you\'re encountering with TensorFlow on the Apple M3 Max GPU seems to be related to the Metal backend for TensorFlow. From the logs, we can see the following key information:\r\n\r\n1. **TensorFlow Metal Plugin**: The logs indicate that TensorFlow is trying to use the Metal API (`metal_plugin/src/device/metal_device.cc`) to run on the GPU, which is Apple\'s framework for GPU acceleration.\r\n2. **Error Message**: The error message `malloc: *** error for object 0x315008234: pointer being freed was not allocated` suggests a memory allocation issue, possibly related to TensorFlow interacting with the Metal API.\r\n\r\nHere\'s a step-by-step approach to troubleshoot and resolve the issue:\r\n\r\n### 1. **Verify Metal Backend Installation**\r\n   TensorFlow uses Metal (Apple\'s GPU API) for macOS devices with M1 and M2 chips, and now M3 chips as well. Make sure that you have the correct version of TensorFlow that supports the Metal backend. As of TensorFlow 2.16.2, Metal support should be in place, but compatibility with the M3 Max specifically may have issues that are not present in older M1 or M2 chips.\r\n\r\n   You can verify if TensorFlow is correctly using the Metal backend by running this code:\r\n\r\n   ```python\r\n   import tensorflow as tf\r\n   from tensorflow.python.keras import backend as K\r\n\r\n   devices = K.tensorflow_backend._get_available_devices()\r\n   print(devices)\r\n   ```\r\n\r\n   This will give you information about which devices TensorFlow is recognizing, including your Metal-compatible GPU. If the GPU is listed, it indicates that TensorFlow is correctly identifying and attempting to use the Metal GPU backend.\r\n\r\n### 2. **Use CPU Instead of GPU**\r\n   If the issue is exclusive to the Metal GPU backend, you might want to disable the GPU usage temporarily to verify that the CPU setup works fine. You can do this by setting the environment variable `CUDA_VISIBLE_DEVICES` to an empty string before running your script:\r\n\r\n   ```bash\r\n   export CUDA_VISIBLE_DEVICES=""""\r\n   python your_script.py\r\n   ```\r\n\r\n   This will force TensorFlow to use the CPU instead of the GPU, which should allow the program to run without crashing. \r\n\r\n### 3. **Ensure Latest macOS & TensorFlow Version**\r\n   Since you\'re using the M3 Max, which is relatively new, it\'s possible that TensorFlow\'s Metal plugin hasn\'t been fully optimized for the new architecture. Here’s what you can do:\r\n\r\n   - **Update macOS**: Make sure your macOS is up to date. Sometimes, macOS updates contain critical updates for the Metal API, which can affect TensorFlow’s ability to utilize the GPU correctly.\r\n   \r\n   - **Update TensorFlow**: Ensure you\'re using the latest nightly build or stable version of TensorFlow. Some Metal backend optimizations might not have been included in TensorFlow 2.16.2.\r\n\r\n     You can upgrade TensorFlow with pip:\r\n\r\n     ```bash\r\n     pip install --upgrade tensorflow\r\n     ```\r\n\r\n     Alternatively, you can try the latest nightly build, which may have better support for the M3 Max:\r\n\r\n     ```bash\r\n     pip install tensorflow-macos\r\n     ```\r\n\r\n     And if you want to ensure the latest support for Metal, you can install the TensorFlow nightly release for macOS:\r\n\r\n     ```bash\r\n     pip install tensorflow-macos==2.18.0-nightly\r\n     ```\r\n\r\n     After updating, try running the same code again to check if the issue is resolved.\r\n\r\n### 4. **Metal Device Compatibility**\r\n   TensorFlow’s Metal support is relatively new and evolving, so there could be issues related to certain hardware configurations like the M3 Max. While the GPU is being recognized in the logs, there might be subtle bugs or configuration issues specific to this model.\r\n\r\n   You could try running a simple GPU-accelerated operation (such as matrix multiplication or convolution) to see if TensorFlow crashes in a minimal setup. This would help confirm if the issue is with TensorFlow’s Metal implementation or something specific in your code.\r\n\r\n   Here\'s a minimal test you can try:\r\n\r\n   ```python\r\n   import tensorflow as tf\r\n   import numpy as np\r\n\r\n   # Create a simple tensor on the GPU\r\n   with tf.device(\'/GPU:0\'):\r\n       A = tf.random.normal([100, 100])\r\n       B = tf.random.normal([100, 100])\r\n       C = tf.matmul(A, B)\r\n       print(C)\r\n   ```\r\n\r\n   This test will let you know if TensorFlow can successfully execute basic GPU operations on the M3 Max.\r\n\r\n### 5. **Inspect TensorFlow Error Logs**\r\n   The error message you\'ve provided indicates that TensorFlow is crashing due to a memory issue (pointer being freed that wasn\'t allocated). To gain more insight into what\'s causing this crash, you can inspect more detailed logs using a debugger like `lldb` or `gdb` on macOS:\r\n\r\n   ```bash\r\n   lldb -- python your_script.py\r\n   ```\r\n\r\n   When the crash happens, you can type `bt` (backtrace) in the `lldb` prompt to get more detailed debugging information. This can help pinpoint the exact location in TensorFlow where the error occurs.\r\n\r\n### 6. **Try Disabling GPU Memory Growth**\r\n   If the issue is related to GPU memory allocation, you can try limiting GPU memory growth, which might help with memory fragmentation issues:\r\n\r\n   ```python\r\n   import tensorflow as tf\r\n\r\n   physical_devices = tf.config.list_physical_devices(\'GPU\')\r\n   tf.config.set_visible_devices(physical_devices[0], \'GPU\')\r\n   tf.config.experimental.set_memory_growth(physical_devices[0], True)\r\n   ```\r\n\r\n   This ensures that TensorFlow doesn’t try to allocate all available memory upfront, and it may help avoid memory allocation crashes.\r\n\r\nIf the problem persists, it might be worth reporting it to the [[TensorFlow GitHub repository](https://github.com/tensorflow/tensorflow/issues)](https://github.com/tensorflow/tensorflow/issues) to see if it\'s a known issue or if any fixes are planned for the M3 Max.', '\r\nHi **@tbjerke04** ,\r\nApologies for the delay, and thank you for raising your concern here. I tried running your code on an M3 Max with the GPU, and it is working fine for me. I have attached screenshots for your reference—please check them once, and let me know if I made any mistakes.\r\n![image (7)](https://github.com/user-attachments/assets/f1cc4edc-e559-44c0-b338-8a634d1c07b3)\r\n![image (6)](https://github.com/user-attachments/assets/494166f9-1ac0-4ade-85b5-1991aac40628)\r\n![image (8)](https://github.com/user-attachments/assets/b056f8b3-0b2f-4ff9-af13-8b08e9f2a5a9)\r\nThank you!', 'Hmm, okey thats weird. Many it is because I’m using Python 3.9.15 and not 3.9.6, as you do?\r\n\r\nI’ll have to troubleshoot a little more. I am using an Anaconda environment, so maybe that’s a problem too.\r\n\r\nAnyways, thanks for the update!\r\n\r\n\r\nHave a nice Christmas:)\r\n\r\nFra: Venkat6871 ***@***.***>\r\nDato: mandag, 23. desember 2024 kl. 11:08\r\nTil: tensorflow/tensorflow ***@***.***>\r\nKopi: Tobias Nøklegård Bjerke ***@***.***>, Mention ***@***.***>\r\nEmne: Re: [tensorflow/tensorflow] TF - Problems when trying to use GPU on M3 Max (Issue #83371)\r\n\r\nHi @tbjerke04<https://github.com/tbjerke04> ,\r\nApologies for the delay, and thank you for raising your concern here. I tried running your code on an M3 Max with the GPU, and it is working fine for me. I have attached screenshots for your reference—please check them once, and let me know if I made any mistakes.\r\nimage.7.png (view on web)<https://github.com/user-attachments/assets/f1cc4edc-e559-44c0-b338-8a634d1c07b3>\r\nimage.6.png (view on web)<https://github.com/user-attachments/assets/494166f9-1ac0-4ade-85b5-1991aac40628>\r\nimage.8.png (view on web)<https://github.com/user-attachments/assets/b056f8b3-0b2f-4ff9-af13-8b08e9f2a5a9>\r\nThank you!\r\n\r\n—\r\nReply to this email directly, view it on GitHub<https://github.com/tensorflow/tensorflow/issues/83371#issuecomment-2559355922>, or unsubscribe<https://github.com/notifications/unsubscribe-auth/BNVZWFMCPY7IHSYBOVWMQOL2G7OJDAVCNFSM6AAAAABT6DTN2SVHI2DSMVQWIX3LMV43OSLTON2WKQ3PNVWWK3TUHMZDKNJZGM2TKOJSGI>.\r\nYou are receiving this because you were mentioned.Message ID: ***@***.***>\r\n', 'I have the same exact issue but on M1 air, runs well on cpu but not on metal GPU\r\n', 'Also @micedevai, the minimal code you provided works, the crash only seems to occur when you run an operation from keras', 'I tried to switch from an Anaconda environment to using Brew, and it actually solved the problem!\r\n\r\nSent from Outlook for iOS<https://aka.ms/o0ukef>\r\n________________________________\r\nFrom: Vincent Precious ***@***.***>\r\nSent: Wednesday, December 25, 2024 10:29:13 PM\r\nTo: tensorflow/tensorflow ***@***.***>\r\nCc: Tobias Nøklegård Bjerke ***@***.***>; Mention ***@***.***>\r\nSubject: Re: [tensorflow/tensorflow] TF - Problems when trying to use GPU on M3 Max (Issue #83371)\r\n\r\n\r\nAlso @micedevai<https://github.com/micedevai>, the minimal code you provided works, the crash only seems to occur when you run an operation from keras\r\n\r\n—\r\nReply to this email directly, view it on GitHub<https://github.com/tensorflow/tensorflow/issues/83371#issuecomment-2562003449>, or unsubscribe<https://github.com/notifications/unsubscribe-auth/BNVZWFMZ2PSTNFWD4JAHR7T2HMPSTAVCNFSM6AAAAABT6DTN2SVHI2DSMVQWIX3LMV43OSLTON2WKQ3PNVWWK3TUHMZDKNRSGAYDGNBUHE>.\r\nYou are receiving this because you were mentioned.Message ID: ***@***.***>\r\n', '\r\nIt appears that the crash occurs specifically when running operations from Keras on the M3 Max GPU, while basic GPU operations such as matrix multiplication work fine. Based on the error message `malloc: *** error for object 0x315008234: pointer being freed was not allocated`, this seems to be a memory allocation or management issue related to TensorFlow\'s Metal backend.\r\n\r\nSince the minimal test works but Keras operations cause the crash, here are a few additional steps you can take to troubleshoot and resolve the issue:\r\n\r\n---\r\n\r\n### 1. **Try a Simplified Keras Model**\r\n\r\nSometimes, certain layers or configurations in Keras might trigger memory management issues. To narrow down the cause, try running a simple Keras model with the same Metal backend setup and see if the crash still occurs. This can help isolate whether it\'s a specific layer or operation causing the issue.\r\n\r\nHere\'s an example of a minimal Keras model:\r\n\r\n```python\r\nimport tensorflow as tf\r\nfrom tensorflow.keras import layers, models\r\n\r\n# Define a simple model\r\nmodel = models.Sequential([\r\n    layers.Dense(64, activation=\'relu\', input_shape=(100,)),\r\n    layers.Dense(10, activation=\'softmax\')\r\n])\r\n\r\n# Compile the model\r\nmodel.compile(optimizer=\'adam\', loss=\'sparse_categorical_crossentropy\', metrics=[\'accuracy\'])\r\n\r\n# Generate some random input data\r\nimport numpy as np\r\nx_train = np.random.random((1000, 100))\r\ny_train = np.random.randint(10, size=(1000,))\r\n\r\n# Train the model\r\nmodel.fit(x_train, y_train, epochs=5)\r\n```\r\n\r\nThis minimal Keras model can help determine if the crash is related to specific layers or operations in your full model.\r\n\r\n---\r\n\r\n### 2. **Disable Keras GPU Acceleration (For Debugging)**\r\n\r\nYou can try forcing Keras to run on the CPU instead of the GPU temporarily to isolate whether the problem is specific to the Metal backend with Keras. Set the environment variable to disable GPU usage:\r\n\r\n```bash\r\nexport CUDA_VISIBLE_DEVICES=""""\r\n```\r\n\r\nAlternatively, you can configure TensorFlow to explicitly use only the CPU within your script:\r\n\r\n```python\r\nimport tensorflow as tf\r\n\r\n# Set TensorFlow to use only the CPU\r\ntf.config.set_visible_devices([], \'GPU\')\r\n```\r\n\r\nIf the crash stops occurring when using the CPU, it strongly suggests the issue lies with GPU acceleration in Keras or the Metal backend.\r\n\r\n---\r\n\r\n### 3. **Disable Keras Layer Caching (Memory Fragmentation)**\r\n\r\nIf the issue is related to memory fragmentation, disabling Keras\'s layer caching might help. You can do this by clearing the session before running your Keras operations:\r\n\r\n```python\r\nfrom tensorflow.keras import backend as K\r\n\r\n# Clear the Keras session to reset the model\'s state\r\nK.clear_session()\r\n```\r\n\r\nClearing the session may help resolve issues related to GPU memory fragmentation or improper memory allocation during model creation and training.\r\n\r\n---\r\n\r\n### 4. **Check TensorFlow\'s Memory Management Settings**\r\n\r\nThe memory issue might be related to TensorFlow\'s GPU memory allocation strategy. You can adjust TensorFlow\'s memory growth settings to prevent it from allocating all available memory at once, which can help avoid crashes due to memory fragmentation.\r\n\r\n```python\r\nimport tensorflow as tf\r\n\r\n# List available GPUs\r\nphysical_devices = tf.config.list_physical_devices(\'GPU\')\r\n\r\n# Set memory growth on GPU to avoid TensorFlow allocating all GPU memory upfront\r\nfor device in physical_devices:\r\n    tf.config.experimental.set_memory_growth(device, True)\r\n\r\n# Check that memory growth is enabled\r\nfor device in physical_devices:\r\n    print(f""Memory growth enabled for {device}"")\r\n```\r\n\r\nThis ensures that TensorFlow only allocates GPU memory as needed, which might reduce memory-related issues.\r\n\r\n---\r\n\r\n### 5. **Investigate the Crash Using Debugging Tools**\r\n\r\nIf the problem persists and you\'re getting a crash related to memory allocation, use **lldb** or **gdb** to get more information about the exact point of failure. You can use the following command in the terminal to debug your script:\r\n\r\n```bash\r\nlldb -- python your_script.py\r\n```\r\n\r\nOnce the crash happens, you can type `bt` in the `lldb` prompt to get a backtrace and pinpoint where the crash is occurring in TensorFlow\'s code. This may provide more insight into whether the issue lies with the TensorFlow Metal implementation, Keras, or the way resources are managed.\r\n\r\n---\r\n\r\n### 6. **Update TensorFlow and macOS**\r\n\r\nAs the M3 Max is a relatively new chip, TensorFlow may not yet be fully optimized for it. Ensure that you\'re running the latest versions of both macOS and TensorFlow to benefit from the latest fixes and improvements, especially related to Metal support.\r\n\r\nTo upgrade TensorFlow:\r\n\r\n```bash\r\npip install --upgrade tensorflow-macos\r\n```\r\n\r\nOr install the latest nightly version that may include better Metal support for newer hardware:\r\n\r\n```bash\r\npip install tensorflow-macos==2.18.0-nightly\r\n```\r\n\r\nAdditionally, make sure your macOS is up to date, as Apple frequently releases updates that improve compatibility with the Metal framework, which could help with TensorFlow\'s ability to utilize the GPU correctly.\r\n\r\n---\r\n\r\n### 7. **Report the Issue**\r\n\r\nIf none of these steps resolve the issue, it might be worth reporting the bug to TensorFlow\'s GitHub repository. The issue could be a known problem with the Metal backend on the M3 Max or an issue that has not been fixed yet. You can report the issue on TensorFlow\'s GitHub [[issue tracker](https://github.com/tensorflow/tensorflow/issues)](https://github.com/tensorflow/tensorflow/issues).\r\n\r\nProvide details about your hardware (M3 Max), macOS version, TensorFlow version, the error message, and any debugging information you\'ve gathered (such as crash logs or backtraces).\r\n\r\n---\r\n\r\nBy following these steps, you should be able to either resolve the issue or gather enough information to report the bug and potentially receive a fix.', 'Hi **@tbjerke04** ,\r\nGlad to see your issue is resolved. Please feel free to close this issue if everything is working as expected.\r\nThank you!', 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/83371"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/83371"">No</a>\n']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+Yes
+
+### Source
+
+source
+
+### TensorFlow version
+
+tf 2.16.2
+
+### Custom code
+
+Yes
+
+### OS platform and distribution
+
+Sequoia 15.2
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+3.9.15
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+_No response_
+
+### GPU model and memory
+
+30-core (M3 Max)
+
+### Current behavior?
+
+I have tried to troubleshoot the problem together with ChatGPT o1, and after a lot of testing, it came to the conclusion that it might be a problem with tensorflow running om my M3 Max. It works fine with the CPU, but as soon as I try to use the GPU, no matter the complexity of the program, it crashes immediately.
+
+### Standalone code to reproduce the issue
+
+```shell
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten
+import numpy as np
+
+# Dummy data
+X_train = np.random.random((1000, 24, 9))
+y_train = np.random.random((1000, 9))
+X_val = np.random.random((200, 24, 9))
+y_val = np.random.random((200, 9))
+
+# Bygg enkel modell
+model = Sequential([
+    Flatten(input_shape=(24, 9)),
+    Dense(64, activation='relu'),
+    Dense(9, activation='linear')
+])
+
+model.compile(optimizer='adam', loss='mse')
+
+# Tren modell
+model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=10, batch_size=32)
+```
+
+
+### Relevant log output
+
+```shell
+UserWarning: Do not pass an `input_shape`/`input_dim` argument to a layer. When using Sequential models, prefer using an `Input(shape)` object as the first layer in the model instead.
+  super().__init__(**kwargs)
+2024-12-20 01:55:05.196093: I metal_plugin/src/device/metal_device.cc:1154] Metal device set to: Apple M3 Max
+2024-12-20 01:55:05.196117: I metal_plugin/src/device/metal_device.cc:296] systemMemory: 36.00 GB
+2024-12-20 01:55:05.196122: I metal_plugin/src/device/metal_device.cc:313] maxCacheSize: 13.50 GB
+2024-12-20 01:55:05.196138: I tensorflow/core/common_runtime/pluggable_device/pluggable_device_factory.cc:305] Could not identify NUMA node of platform GPU ID 0, defaulting to 0. Your kernel may not have been built with NUMA support.
+2024-12-20 01:55:05.196152: I tensorflow/core/common_runtime/pluggable_device/pluggable_device_factory.cc:271] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 0 MB memory) -> physical PluggableDevice (device: 0, name: METAL, pci bus id: <undefined>)
+Epoch 1/10
+2024-12-20 01:55:05.402051: I tensorflow/core/grappler/optimizers/custom_graph_optimizer_registry.cc:117] Plugin optimizer for device_type GPU is enabled.
+python(31809,0x1fb8e4240) malloc: *** error for object 0x315008234: pointer being freed was not allocated
+python(31809,0x1fb8e4240) malloc: *** set a breakpoint in malloc_error_break to debug
+zsh: abort
+```
+"
+2753768096,83508,DLL load failure,closed,2024-12-21 05:15:18+00:00,2025-01-03T16:59:40Z,2025-01-03T16:59:37Z,Venkat6871,,https://github.com/tensorflow/tensorflow/issues/83508,"['stat:awaiting response', 'type:bug', 'TF 2.18']","['same error here', 'Same error here', 'Hi **@Davischoice1** ,\r\nApologies for the delay. Could you please provide the tensorflow and the compatible version which you are trying to install. Also there are at least 3 possible scenarios:\r\n\r\nYou need to install the MSVC 2019 redistributable\r\nYour CPU does not support AVX2 instructions\r\nYour CPU/Python is on 32 bits\r\nThere is a library that is in a different location/not installed on your system that cannot be loaded.\r\nhttps://github.com/tensorflow/tensorflow/issues/61887\r\nThank you!', 'tensorflow version: 2.18.Orc2\r\n', 'actually is version 2.18.0 ', 'Hi **@langtontdangare** ,\r\nCould you please open another issue with all the relevant details? This will make it easier for us to track and assist you effectively.\r\nThank you!', 'Duplicate of https://github.com/tensorflow/tensorflow/issues/19584. Please do a search before opening new issues. This is a very old issue and manifests because old PCs with Windows cannot load libraries needed by TF because they have very old architecture sets.', 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/83508"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/83508"">No</a>\n']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+Yes
+
+### Source
+
+source
+
+### TensorFlow version
+
+2.18
+
+### Custom code
+
+Yes
+
+### OS platform and distribution
+
+windows 10
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+3.12
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+_No response_
+
+### GPU model and memory
+
+_No response_
+
+### Current behavior?
+
+i want a successful run
+
+### Standalone code to reproduce the issue
+
+```shell
+ImportError                               Traceback (most recent call last)
+File ~\anaconda3\envs\tensorflow\Lib\site-packages\tensorflow\python\pywrap_tensorflow.py:70
+     69 try:
+---> 70   from tensorflow.python._pywrap_tensorflow_internal import *
+     71 # This try catch logic is because there is no bazel equivalent for py_extension.
+     72 # Externally in opensource we must enable exceptions to load the shared object
+     73 # by exposing the PyInit symbols with pybind. This error will only be
+     74 # caught internally or if someone changes the name of the target _pywrap_tensorflow_internal.
+     75 
+     76 # This logic is used in other internal projects using py_extension.
+
+ImportError: DLL load failed while importing _pywrap_tensorflow_internal: A dynamic link library (DLL) initialization routine failed.
+
+During handling of the above exception, another exception occurred:
+
+ImportError                               Traceback (most recent call last)
+Cell In[4], line 1
+----> 1 import tensorflow as tf
+
+File ~\anaconda3\envs\tensorflow\Lib\site-packages\tensorflow\__init__.py:40
+     37 _os.environ.setdefault(""ENABLE_RUNTIME_UPTIME_TELEMETRY"", ""1"")
+     39 # Do not remove this line; See https://github.com/tensorflow/tensorflow/issues/42596
+---> 40 from tensorflow.python import pywrap_tensorflow as _pywrap_tensorflow  # pylint: disable=unused-import
+     41 from tensorflow.python.tools import module_util as _module_util
+     42 from tensorflow.python.util.lazy_loader import KerasLazyLoader as _KerasLazyLoader
+
+File ~\anaconda3\envs\tensorflow\Lib\site-packages\tensorflow\python\pywrap_tensorflow.py:85
+     83     sys.setdlopenflags(_default_dlopen_flags)
+     84 except ImportError:
+---> 85   raise ImportError(
+     86       f'{traceback.format_exc()}'
+     87       f'\n\nFailed to load the native TensorFlow runtime.\n'
+     88       f'See https://www.tensorflow.org/install/errors '
+     89       f'for some common causes and solutions.\n'
+     90       f'If you need help, create an issue '
+     91       f'at https://github.com/tensorflow/tensorflow/issues '
+     92       f'and include the entire stack trace above this error message.')
+
+ImportError: Traceback (most recent call last):
+  File ""C:\Users\user\anaconda3\envs\tensorflow\Lib\site-packages\tensorflow\python\pywrap_tensorflow.py"", line 70, in <module>
+    from tensorflow.python._pywrap_tensorflow_internal import *
+ImportError: DLL load failed while importing _pywrap_tensorflow_internal: A dynamic link library (DLL) initialization routine failed.
+
+
+Failed to load the native TensorFlow runtime.
+See https://www.tensorflow.org/install/errors for some common causes and solutions.
+If you need help, create an issue at https://github.com/tensorflow/tensorflow/issues and include the entire stack trace above this error message.
+```
+
+
+### Relevant log output
+
+```shell
+ImportError                               Traceback (most recent call last)
+File ~\anaconda3\envs\tensorflow\Lib\site-packages\tensorflow\python\pywrap_tensorflow.py:70
+     69 try:
+---> 70   from tensorflow.python._pywrap_tensorflow_internal import *
+     71 # This try catch logic is because there is no bazel equivalent for py_extension.
+     72 # Externally in opensource we must enable exceptions to load the shared object
+     73 # by exposing the PyInit symbols with pybind. This error will only be
+     74 # caught internally or if someone changes the name of the target _pywrap_tensorflow_internal.
+     75 
+     76 # This logic is used in other internal projects using py_extension.
+
+ImportError: DLL load failed while importing _pywrap_tensorflow_internal: A dynamic link library (DLL) initialization routine failed.
+
+During handling of the above exception, another exception occurred:
+
+ImportError                               Traceback (most recent call last)
+Cell In[4], line 1
+----> 1 import tensorflow as tf
+
+File ~\anaconda3\envs\tensorflow\Lib\site-packages\tensorflow\__init__.py:40
+     37 _os.environ.setdefault(""ENABLE_RUNTIME_UPTIME_TELEMETRY"", ""1"")
+     39 # Do not remove this line; See https://github.com/tensorflow/tensorflow/issues/42596
+---> 40 from tensorflow.python import pywrap_tensorflow as _pywrap_tensorflow  # pylint: disable=unused-import
+     41 from tensorflow.python.tools import module_util as _module_util
+     42 from tensorflow.python.util.lazy_loader import KerasLazyLoader as _KerasLazyLoader
+
+File ~\anaconda3\envs\tensorflow\Lib\site-packages\tensorflow\python\pywrap_tensorflow.py:85
+     83     sys.setdlopenflags(_default_dlopen_flags)
+     84 except ImportError:
+---> 85   raise ImportError(
+     86       f'{traceback.format_exc()}'
+     87       f'\n\nFailed to load the native TensorFlow runtime.\n'
+     88       f'See https://www.tensorflow.org/install/errors '
+     89       f'for some common causes and solutions.\n'
+     90       f'If you need help, create an issue '
+     91       f'at https://github.com/tensorflow/tensorflow/issues '
+     92       f'and include the entire stack trace above this error message.')
+
+ImportError: Traceback (most recent call last):
+  File ""C:\Users\user\anaconda3\envs\tensorflow\Lib\site-packages\tensorflow\python\pywrap_tensorflow.py"", line 70, in <module>
+    from tensorflow.python._pywrap_tensorflow_internal import *
+ImportError: DLL load failed while importing _pywrap_tensorflow_internal: A dynamic link library (DLL) initialization routine failed.
+
+
+Failed to load the native TensorFlow runtime.
+See https://www.tensorflow.org/install/errors for some common causes and solutions.
+If you need help, create an issue at https://github.com/tensorflow/tensorflow/issues and include the entire stack trace above this error message.
+```
+"
+2756717996,83632,DLL Load Failed while Importing _pywrap_tensorflow_internal on Windows,closed,2024-12-23 21:08:35+00:00,2024-12-24T12:14:15Z,2024-12-24T12:14:12Z,tilakrayal,,https://github.com/tensorflow/tensorflow/issues/83632,['type:bug'],"['Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/83632"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/83632"">No</a>\n']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+No
+
+### Source
+
+source
+
+### TensorFlow version
+
+2.18.0
+
+### Custom code
+
+No
+
+### OS platform and distribution
+
+Microsoft Windows 11 Pro
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+3.11.0
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+_No response_
+
+### GPU model and memory
+
+_No response_
+
+### Current behavior?
+
+When I try to import TensorFlow using the command `import tensorflow as tf`, I get the following error message:
+
+`ImportError: DLL load failed while importing _pywrap_tensorflow_internal: A dynamic link library (DLL) initialization routine failed.`
+
+This error prevents TensorFlow from starting properly. I am using the CPU version of TensorFlow and do not require CUDA/cuDNN. I have ensured that all necessary components for TensorFlow to function correctly are installed on my system.
+
+### Standalone code to reproduce the issue
+
+```shell
+import tensorflow as tf
+```
+
+
+### Relevant log output
+
+```shell
+Traceback (most recent call last):
+  File ""D:\Python\Python311\Lib\site-packages\tensorflow\python\pywrap_tensorflow.py"", line 70, in <module>
+    from tensorflow.python._pywrap_tensorflow_internal import *
+ImportError: DLL load failed while importing _pywrap_tensorflow_internal: A dynamic link library (DLL) initialization routine failed.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File ""<stdin>"", line 1, in <module>
+  File ""D:\Python\Python311\Lib\site-packages\tensorflow\__init__.py"", line 40, in <module>
+    from tensorflow.python import pywrap_tensorflow as _pywrap_tensorflow  # pylint: disable=unused-import
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""D:\Python\Python311\Lib\site-packages\tensorflow\python\pywrap_tensorflow.py"", line 85, in <module>
+    raise ImportError(
+ImportError: Traceback (most recent call last):
+  File ""D:\Python\Python311\Lib\site-packages\tensorflow\python\pywrap_tensorflow.py"", line 70, in <module>
+    from tensorflow.python._pywrap_tensorflow_internal import *
+ImportError: DLL load failed while importing _pywrap_tensorflow_internal: A dynamic link library (DLL) initialization routine failed.
+```
+"
+2761011732,83802,Cannot Fine-Tune Hugging Face TF model on GPU (it works on CPU),closed,2024-12-27 15:31:24+00:00,2025-01-15T01:59:54Z,2025-01-15T01:59:51Z,tilakrayal,,https://github.com/tensorflow/tensorflow/issues/83802,"['stat:awaiting response', 'type:bug', 'stale', 'TF 2.18']","['@carlosg-m,\r\nHi, By default the colab notebook is using tensorflow v2.17 and v2.18 which contains keras3.0 which was causing the error. Could you please try to import keras2.0 with the below commands.\r\n\r\n```python\r\n!pip install tf-keras == 2.18.0\r\n\r\nimport tf_keras as keras\r\n```\r\n\r\nAlso I have modified some steps and then the code was executed without error/fail. Kindly find the gist of it [here](https://colab.research.google.com/gist/tilakrayal/12745b17800316a04bc64f499ec33437/untitled2292.ipynb).\r\n\r\nThank you!', 'This issue is stale because it has been open for 7 days with no activity. It will be closed if no further activity occurs. Thank you.', ""This issue was closed because it has been inactive for 7 days since being marked as stale. Please reopen if you'd like to work on this further."", 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/83802"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/83802"">No</a>\n']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+No
+
+### Source
+
+binary
+
+### TensorFlow version
+
+2.18.0
+
+### Custom code
+
+Yes
+
+### OS platform and distribution
+
+Ubuntu 24.04.1 LTS
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+3.12.3
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+12.5.1 / 9
+
+### GPU model and memory
+
+Nvidia Tesla T4 GPU (16GB)
+
+### Current behavior?
+
+I'm trying to fine tune HuggingFace's `TFResNetModel` using `tf.keras`. The provided example works on CPU, however when I enable the GPU I get the following error. 
+
+The GPU is running and working fine for a simple Keras model example. 
+
+The problem seems to be related to the integration of tf.Keras and HuggingFace.
+
+### Standalone code to reproduce the issue
+
+```shell
+os.environ['TF_USE_LEGACY_KERAS'] = '1'
+import tensorflow as tf
+from transformers import TFResNetModel
+
+def create_model():
+  
+  base_model = TFResNetModel.from_pretrained(""microsoft/resnet-50"")
+  inputs = tf.keras.Input((3,224,224), dtype='float32')
+
+  x = base_model(inputs).pooler_output
+  x = tf.keras.layers.Flatten()(x)
+  x = tf.keras.layers.Dense(1, activation='sigmoid')(x)
+  
+  model = tf.keras.Model(inputs=inputs, outputs=x)
+  return model
+
+model = create_model()
+
+model.layers[1].trainable = False
+
+model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), 
+              loss=tf.keras.losses.BinaryCrossentropy())
+
+model.fit(x=np.random.random(size=(10,3,224,224)), 
+          y=np.random.random(size=(10,)), 
+          batch_size=2, 
+          epochs=20, 
+          shuffle=True)
+```
+
+
+### Relevant log output
+
+```shell
+I0000 00:00:1735312999.999419   28671 gpu_device.cc:2022] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 14793 MB memory:  -> device: 0, name: Tesla T4, pci bus id: 0001:00:00.0, compute capability: 7.5
+Some weights of the PyTorch model were not used when initializing the TF 2.0 model TFResNetModel: ['resnet.encoder.stages.2.layers.2.layer.1.normalization.num_batches_tracked', 'resnet.encoder.stages.1.layers.2.layer.1.normalization.num_batches_tracked', 'resnet.encoder.stages.2.layers.5.layer.1.normalization.num_batches_tracked', 'resnet.encoder.stages.2.layers.1.layer.1.normalization.num_batches_tracked', 'resnet.encoder.stages.1.layers.2.layer.0.normalization.num_batches_tracked', 'resnet.encoder.stages.2.layers.4.layer.2.normalization.num_batches_tracked', 'resnet.encoder.stages.2.layers.4.layer.0.normalization.num_batches_tracked', 'resnet.encoder.stages.3.layers.0.layer.2.normalization.num_batches_tracked', 'resnet.encoder.stages.3.layers.2.layer.1.normalization.num_batches_tracked', 'resnet.encoder.stages.1.layers.2.layer.2.normalization.num_batches_tracked', 'resnet.encoder.stages.0.layers.0.layer.0.normalization.num_batches_tracked', 'resnet.encoder.stages.3.layers.0.shortcut.normalization.num_batches_tracked', 'resnet.encoder.stages.2.layers.0.shortcut.normalization.num_batches_tracked', 'classifier.1.bias', 'resnet.encoder.stages.2.layers.2.layer.0.normalization.num_batches_tracked', 'resnet.encoder.stages.2.layers.3.layer.0.normalization.num_batches_tracked', 'resnet.encoder.stages.2.layers.5.layer.0.normalization.num_batches_tracked', 'resnet.encoder.stages.2.layers.4.layer.1.normalization.num_batches_tracked', 'resnet.encoder.stages.2.layers.0.layer.2.normalization.num_batches_tracked', 'resnet.encoder.stages.2.layers.3.layer.1.normalization.num_batches_tracked', 'resnet.encoder.stages.1.layers.0.layer.0.normalization.num_batches_tracked', 'resnet.encoder.stages.1.layers.0.layer.2.normalization.num_batches_tracked', 'resnet.encoder.stages.3.layers.0.layer.1.normalization.num_batches_tracked', 'resnet.encoder.stages.1.layers.3.layer.2.normalization.num_batches_tracked', 'resnet.encoder.stages.0.layers.2.layer.0.normalization.num_batches_tracked', 'resnet.encoder.stages.1.layers.3.layer.1.normalization.num_batches_tracked', 'resnet.encoder.stages.0.layers.1.layer.1.normalization.num_batches_tracked', 'resnet.encoder.stages.3.layers.1.layer.2.normalization.num_batches_tracked', 'resnet.encoder.stages.2.layers.0.layer.0.normalization.num_batches_tracked', 'resnet.encoder.stages.0.layers.0.shortcut.normalization.num_batches_tracked', 'resnet.encoder.stages.3.layers.2.layer.2.normalization.num_batches_tracked', 'resnet.encoder.stages.0.layers.2.layer.2.normalization.num_batches_tracked', 'resnet.encoder.stages.2.layers.2.layer.2.normalization.num_batches_tracked', 'resnet.encoder.stages.3.layers.2.layer.0.normalization.num_batches_tracked', 'resnet.encoder.stages.3.layers.1.layer.1.normalization.num_batches_tracked', 'resnet.encoder.stages.2.layers.0.layer.1.normalization.num_batches_tracked', 'resnet.encoder.stages.2.layers.1.layer.0.normalization.num_batches_tracked', 'resnet.encoder.stages.2.layers.3.layer.2.normalization.num_batches_tracked', 'resnet.encoder.stages.3.layers.0.layer.0.normalization.num_batches_tracked', 'resnet.encoder.stages.0.layers.2.layer.1.normalization.num_batches_tracked', 'resnet.encoder.stages.1.layers.0.shortcut.normalization.num_batches_tracked', 'resnet.encoder.stages.1.layers.1.layer.1.normalization.num_batches_tracked', 'resnet.encoder.stages.2.layers.5.layer.2.normalization.num_batches_tracked', 'resnet.encoder.stages.0.layers.1.layer.2.normalization.num_batches_tracked', 'classifier.1.weight', 'resnet.encoder.stages.1.layers.0.layer.1.normalization.num_batches_tracked', 'resnet.encoder.stages.1.layers.1.layer.0.normalization.num_batches_tracked', 'resnet.encoder.stages.1.layers.1.layer.2.normalization.num_batches_tracked', 'resnet.encoder.stages.3.layers.1.layer.0.normalization.num_batches_tracked', 'resnet.encoder.stages.0.layers.1.layer.0.normalization.num_batches_tracked', 'resnet.embedder.embedder.normalization.num_batches_tracked', 'resnet.encoder.stages.0.layers.0.layer.1.normalization.num_batches_tracked', 'resnet.encoder.stages.1.layers.3.layer.0.normalization.num_batches_tracked', 'resnet.encoder.stages.2.layers.1.layer.2.normalization.num_batches_tracked', 'resnet.encoder.stages.0.layers.0.layer.2.normalization.num_batches_tracked']
+- This IS expected if you are initializing TFResNetModel from a PyTorch model trained on another task or with another architecture (e.g. initializing a TFBertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing TFResNetModel from a PyTorch model that you expect to be exactly identical (e.g. initializing a TFBertForSequenceClassification model from a BertForSequenceClassification model).
+All the weights of TFResNetModel were initialized from the PyTorch model.
+If your task is similar to the task the model of the checkpoint was trained on, you can already use TFResNetModel for predictions without further training.
+Epoch 1/20
+2024-12-27 15:23:25.310845: I tensorflow/core/grappler/optimizers/generic_layout_optimizer.cc:403] Cancel Transpose nodes around Pad: transpose_before=model/tf_res_net_model/resnet/transpose pad=model/tf_res_net_model/resnet/embedder/embedder/Pad transpose_after=model/tf_res_net_model/resnet/embedder/embedder/convolution/Conv2D-0-TransposeNHWCToNCHW-LayoutOptimizer
+E0000 00:00:1735313005.557664   28780 cuda_dnn.cc:522] Loaded runtime CuDNN library: 9.1.0 but source was compiled with: 9.3.0.  CuDNN library needs to have matching major version and equal or higher minor version. If using a binary install, upgrade your CuDNN library.  If building from sources, make sure the library loaded at runtime is compatible with the version specified during compile configuration.
+2024-12-27 15:23:25.558728: W tensorflow/core/framework/op_kernel.cc:1841] OP_REQUIRES failed at conv_ops_impl.h:1204 : INVALID_ARGUMENT: No DNN in stream executor.
+2024-12-27 15:23:25.558788: I tensorflow/core/framework/local_rendezvous.cc:405] Local rendezvous is aborting with status: INVALID_ARGUMENT: No DNN in stream executor.
+	 [[{{node model/tf_res_net_model/resnet/embedder/embedder/convolution/Conv2D}}]]
+
+InvalidArgumentError: Graph execution error:
+
+Detected at node model/tf_res_net_model/resnet/embedder/embedder/convolution/Conv2D defined at (most recent call last):
+  File ""/databricks/python_shell/scripts/db_ipykernel_launcher.py"", line 242, in <module>
+
+  File ""/databricks/python_shell/scripts/db_ipykernel_launcher.py"", line 238, in main
+
+  File ""/databricks/python/lib/python3.12/site-packages/ipykernel/kernelapp.py"", line 701, in start
+
+  File ""/databricks/python/lib/python3.12/site-packages/tornado/platform/asyncio.py"", line 205, in start
+
+  File ""/usr/lib/python3.12/asyncio/base_events.py"", line 641, in run_forever
+
+  File ""/usr/lib/python3.12/asyncio/base_events.py"", line 1987, in _run_once
+
+  File ""/usr/lib/python3.12/asyncio/events.py"", line 88, in _run
+
+  File ""/databricks/python/lib/python3.12/site-packages/ipykernel/kernelbase.py"", line 534, in dispatch_queue
+
+  File ""/databricks/python/lib/python3.12/site-packages/ipykernel/kernelbase.py"", line 523, in process_one
+
+  File ""/databricks/python/lib/python3.12/site-packages/ipykernel/kernelbase.py"", line 429, in dispatch_shell
+
+  File ""/databricks/python/lib/python3.12/site-packages/ipykernel/kernelbase.py"", line 767, in execute_request
+
+  File ""/databricks/python_shell/dbruntime/DatabricksShell.py"", line 285, in do_execute
+
+  File ""/databricks/python/lib/python3.12/site-packages/ipykernel/ipkernel.py"", line 429, in do_execute
+
+  File ""/databricks/python/lib/python3.12/site-packages/ipykernel/zmqshell.py"", line 549, in run_cell
+
+  File ""/databricks/python/lib/python3.12/site-packages/IPython/core/interactiveshell.py"", line 3075, in run_cell
+
+  File ""/databricks/python/lib/python3.12/site-packages/IPython/core/interactiveshell.py"", line 3130, in _run_cell
+
+  File ""/databricks/python/lib/python3.12/site-packages/IPython/core/async_helpers.py"", line 129, in _pseudo_sync_runner
+
+  File ""/databricks/python/lib/python3.12/site-packages/IPython/core/interactiveshell.py"", line 3334, in run_cell_async
+
+  File ""/databricks/python/lib/python3.12/site-packages/IPython/core/interactiveshell.py"", line 3517, in run_ast_nodes
+
+  File ""/databricks/python/lib/python3.12/site-packages/IPython/core/interactiveshell.py"", line 3577, in run_code
+
+  File ""/root/.ipykernel/28671/command-3155791975121661-1239963347"", line 20, in <module>
+
+  File ""/databricks/python/lib/python3.12/site-packages/mlflow/utils/autologging_utils/safety.py"", line 460, in safe_patch_function
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/utils/traceback_utils.py"", line 65, in error_handler
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/engine/training.py"", line 1804, in fit
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/engine/training.py"", line 1398, in train_function
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/engine/training.py"", line 1381, in step_function
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/engine/training.py"", line 1370, in run_step
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/engine/training.py"", line 1147, in train_step
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/utils/traceback_utils.py"", line 65, in error_handler
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/engine/training.py"", line 588, in __call__
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/utils/traceback_utils.py"", line 65, in error_handler
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/engine/base_layer.py"", line 1142, in __call__
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/utils/traceback_utils.py"", line 96, in error_handler
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/engine/functional.py"", line 514, in call
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/engine/functional.py"", line 671, in _run_internal_graph
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/utils/traceback_utils.py"", line 65, in error_handler
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/engine/training.py"", line 588, in __call__
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/utils/traceback_utils.py"", line 65, in error_handler
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/engine/base_layer.py"", line 1142, in __call__
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/utils/traceback_utils.py"", line 96, in error_handler
+
+  File ""/databricks/python/lib/python3.12/site-packages/transformers/modeling_tf_utils.py"", line 499, in run_call_with_unpacked_inputs
+
+  File ""/databricks/python/lib/python3.12/site-packages/transformers/models/resnet/modeling_tf_resnet.py"", line 503, in call
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/utils/traceback_utils.py"", line 65, in error_handler
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/engine/base_layer.py"", line 1142, in __call__
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/utils/traceback_utils.py"", line 96, in error_handler
+
+  File ""/databricks/python/lib/python3.12/site-packages/transformers/modeling_tf_utils.py"", line 499, in run_call_with_unpacked_inputs
+
+  File ""/databricks/python/lib/python3.12/site-packages/transformers/models/resnet/modeling_tf_resnet.py"", line 432, in call
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/utils/traceback_utils.py"", line 65, in error_handler
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/engine/base_layer.py"", line 1142, in __call__
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/utils/traceback_utils.py"", line 96, in error_handler
+
+  File ""/databricks/python/lib/python3.12/site-packages/transformers/models/resnet/modeling_tf_resnet.py"", line 124, in call
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/utils/traceback_utils.py"", line 65, in error_handler
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/engine/base_layer.py"", line 1142, in __call__
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/utils/traceback_utils.py"", line 96, in error_handler
+
+  File ""/databricks/python/lib/python3.12/site-packages/transformers/models/resnet/modeling_tf_resnet.py"", line 82, in call
+
+  File ""/databricks/python/lib/python3.12/site-packages/transformers/models/resnet/modeling_tf_resnet.py"", line 78, in convolution
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/utils/traceback_utils.py"", line 65, in error_handler
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/engine/base_layer.py"", line 1142, in __call__
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/utils/traceback_utils.py"", line 96, in error_handler
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/layers/convolutional/base_conv.py"", line 289, in call
+
+  File ""/databricks/python/lib/python3.12/site-packages/tf_keras/src/layers/convolutional/base_conv.py"", line 261, in convolution_op
+
+No DNN in stream executor.
+	 [[{{node model/tf_res_net_model/resnet/embedder/embedder/convolution/Conv2D}}]] [Op:__inference_train_function_9105]
+File <command-3155791975121661>, line 20
+     15 model.layers[1].trainable = False
+     17 model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), 
+     18               loss=tf.keras.losses.BinaryCrossentropy())
+---> 20 model.fit(x=np.random.random(size=(10,3,224,224)), 
+     21           y=np.random.random(size=(10,)), 
+     22           batch_size=2, 
+     23           epochs=20, 
+     24           shuffle=True)
+File /databricks/python/lib/python3.12/site-packages/mlflow/utils/autologging_utils/safety.py:460, in safe_patch.<locals>.safe_patch_function(*args, **kwargs)
+    441 if (
+    442     active_session_failed
+    443     or autologging_is_disabled(autologging_integration)
+   (...)
+    454     # warning behavior during original function execution, since autologging is being
+    455     # skipped
+    456     with set_non_mlflow_warnings_behavior_for_current_thread(
+    457         disable_warnings=False,
+    458         reroute_warnings=False,
+    459     ):
+--> 460         return original(*args, **kwargs)
+    462 # Whether or not the original / underlying function has been called during the
+    463 # execution of patched code
+    464 original_has_been_called = False
+File /databricks/python/lib/python3.12/site-packages/tf_keras/src/utils/traceback_utils.py:70, in filter_traceback.<locals>.error_handler(*args, **kwargs)
+     67     filtered_tb = _process_traceback_frames(e.__traceback__)
+     68     # To get the full stack trace, call:
+     69     # `tf.debugging.disable_traceback_filtering()`
+---> 70     raise e.with_traceback(filtered_tb) from None
+     71 finally:
+     72     del filtered_tb
+File /databricks/python/lib/python3.12/site-packages/tensorflow/python/eager/execute.py:53, in quick_execute(op_name, num_outputs, inputs, attrs, ctx, name)
+     51 try:
+     52   ctx.ensure_initialized()
+---> 53   tensors = pywrap_tfe.TFE_Py_Execute(ctx._handle, device_name, op_name,
+     54                                       inputs, attrs, num_outputs)
+     55 except core._NotOkStatusException as e:
+     56   if name is not None:
+```
+"
+2766207607,84027,Tensorflow BackupAndRestore method does not work,closed,2025-01-02 15:20:08+00:00,2025-01-10T13:07:46Z,2025-01-10T13:07:41Z,Venkat6871,,https://github.com/tensorflow/tensorflow/issues/84027,"['stat:awaiting response', 'type:bug', 'comp:keras', '2.17']","['The error message you\'re encountering:\r\n\r\n```\r\nValueError: To use the BackupAndRestore method, your model must be built before you call `fit()`. Model is unbuilt. You can build it beforehand by calling it on a batch of data.\r\n```\r\n\r\nindicates that the `BackupAndRestore` callback expects the model to be built before calling `fit()`, but in your case, the model is not explicitly built before the training loop starts.\r\n\r\n### Understanding the Problem:\r\n- **`BackupAndRestore` callback** requires the model to be ""built"" before starting training. The model needs to know the input shapes and architecture in order to correctly manage the backup and restoration processes.\r\n- **Model Building**: When you define a `Sequential` model without specifying input shapes, TensorFlow won\'t know the input shape until data is passed to the model. Therefore, you need to either specify the input shape when defining the model or pass a batch of data to the model before calling `fit()`.\r\n\r\n### Solution 1: Define the Input Shape in the Model\r\n\r\nYou can explicitly define the input shape when creating the model, which ensures the model is ""built"" before training starts:\r\n\r\n```python\r\nimport keras\r\nimport numpy as np\r\n\r\nclass InterruptingCallback(keras.callbacks.Callback):\r\n   def on_epoch_begin(self, epoch, logs=None):\r\n     if epoch == 4:\r\n       raise RuntimeError(\'Interrupting!\')\r\n\r\ncallback = keras.callbacks.BackupAndRestore(backup_dir=""/tmp/backup"")\r\n\r\n# Define the model with an explicit input shape\r\nmodel = keras.models.Sequential([\r\n    keras.layers.InputLayer(input_shape=(20,)),  # Specify the input shape\r\n    keras.layers.Dense(10)\r\n])\r\n\r\nmodel.compile(keras.optimizers.SGD(), loss=\'mse\')\r\n\r\n# Now the model is built before training\r\ntry:\r\n    model.fit(np.arange(100).reshape(5, 20), np.zeros(5), epochs=10,\r\n              batch_size=1, callbacks=[callback, InterruptingCallback()],\r\n              verbose=0)\r\nexcept Exception as e:\r\n    print(e)\r\n\r\nhistory = model.fit(np.arange(100).reshape(5, 20), np.zeros(5),\r\n                    epochs=10, batch_size=1, callbacks=[callback],\r\n                    verbose=0)\r\n\r\nprint(len(history.history[\'loss\']))\r\n```\r\n\r\n### Explanation:\r\n- **`InputLayer`**: By adding the `InputLayer` with an explicit `input_shape=(20,)`, you\'re telling Keras the expected shape of the input data, which ensures that the model is built before calling `fit()`.\r\n\r\n### Solution 2: Build the Model Before Calling `fit()`\r\n\r\nAlternatively, you can use a batch of data to build the model explicitly before training. This can be done using the `model.build()` method:\r\n\r\n```python\r\nimport keras\r\nimport numpy as np\r\n\r\nclass InterruptingCallback(keras.callbacks.Callback):\r\n   def on_epoch_begin(self, epoch, logs=None):\r\n     if epoch == 4:\r\n       raise RuntimeError(\'Interrupting!\')\r\n\r\ncallback = keras.callbacks.BackupAndRestore(backup_dir=""/tmp/backup"")\r\n\r\n# Define the model without specifying input shape\r\nmodel = keras.models.Sequential([\r\n    keras.layers.Dense(10)\r\n])\r\n\r\nmodel.compile(keras.optimizers.SGD(), loss=\'mse\')\r\n\r\n# Build the model by passing a batch of data\r\nmodel.build(input_shape=(None, 20))  # Here, 20 is the number of features in your input data\r\n\r\n# Now the model is built before calling fit\r\ntry:\r\n    model.fit(np.arange(100).reshape(5, 20), np.zeros(5), epochs=10,\r\n              batch_size=1, callbacks=[callback, InterruptingCallback()],\r\n              verbose=0)\r\nexcept Exception as e:\r\n    print(e)\r\n\r\nhistory = model.fit(np.arange(100).reshape(5, 20), np.zeros(5),\r\n                    epochs=10, batch_size=1, callbacks=[callback],\r\n                    verbose=0)\r\n\r\nprint(len(history.history[\'loss\']))\r\n```\r\n\r\n### Explanation:\r\n- **`model.build()`**: This explicitly builds the model by providing the `input_shape`. After this call, the model is ready for training, and the `BackupAndRestore` callback will work correctly.\r\n\r\nTo fix the issue, you need to ensure that the model is built (either by specifying the input shape or by explicitly calling `model.build()`) before invoking `fit()`. Both solutions will address the error and allow the `BackupAndRestore` callback to function as expected.', 'Hi **@antipisa** ,\r\nThanks for raising your concern here. The raised [PR](https://github.com/keras-team/keras/pull/20714) has been merged. Could you please check and let us know if the issue still persists? \r\nThank you!', ' @Venkat6871 \r\nDoes Solution 1 work when the input layer is a normalization layer? E.g for this example\r\n```\r\n\r\nimport tensorflow as tf\r\n\r\nx = tf.random.uniform((100, 1))\r\ny = tf.random.uniform((100, 1))\r\nz = tf.random.uniform((100, 1))\r\n\r\nxyz = tf.concat([x, y, z], 1)\r\n\r\nhorsepower_normalizer = tf.keras.layers.Normalization(input_shape=(3,), axis=-1)\r\nhorsepower_normalizer.adapt(xyz)\r\n\r\nhorsepower_model = tf.keras.models.Sequential([\r\n    horsepower_normalizer,\r\n    tf.keras.layers.Dense(units=1)\r\n])\r\n\r\nhorsepower_model(xyz)\r\n\r\n```\r\n\r\nEDIT: This raises a UserWarning about using input_shape in a layer. Is there a better way? ', ""@Venkat6871 \r\nSolution 1 raises `ValueError: Only instances of `keras.Layer` can be added to a Sequential model. Received: (<InputLayer, name='input_layer_6, built=True>), (of type <class='tuple'>) ' ` "", 'Hi **@antipisa** ,\r\nApologies for the delay, and thank you for your patience. I tried running your code on Colab using TensorFlow 2.17.0 and 2.18.0 versions, but I am not facing any issues. Could you please check which warning you are encountering? Please find the [gist](https://colab.sandbox.google.com/gist/Venkat6871/3c9e9d89bc8c9adbb8177cb409d18080/84027_tf_2-18-0-2-17-0-v.ipynb) here for your reference.\r\nThank you!', 'Hi @Venkat6871 , the problem is fixed if one imports the following way:\r\n\r\n```\r\nfrom tensorflow import keras\r\nfrom keras import layers\r\nfrom keras.layers import InputLayer, Dense\r\n```', 'Hi **@antipisa** ,\r\nGlad to see your issue is resolved! Please feel free to close this issue if everything is working as expected.\r\nThank you!', 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/84027"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/84027"">No</a>\n']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+No
+
+### Source
+
+conda-forge 
+
+### TensorFlow version
+
+2.17
+
+### Custom code
+
+No
+
+### OS platform and distribution
+
+Linux RHEL8
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+3.11.8
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+GCC 11.2.8
+
+### CUDA/cuDNN version
+
+_No response_
+
+### GPU model and memory
+
+_No response_
+
+### Current behavior?
+
+BackupAndRestore example code does not work
+
+### Standalone code to reproduce the issue
+
+```shell
+import keras
+import numpy as np
+
+class InterruptingCallback(keras.callbacks.Callback):
+   def on_epoch_begin(self, epoch, logs=None):
+     if epoch == 4:
+       raise RuntimeError('Interrupting!')
+callback = keras.callbacks.BackupAndRestore(backup_dir=""/tmp/backup"")
+model = keras.models.Sequential([keras.layers.Dense(10)])
+model.compile(keras.optimizers.SGD(), loss='mse')
+try:
+   model.fit(np.arange(100).reshape(5, 20), np.zeros(5), epochs=10,
+             batch_size=1, callbacks=[callback, InterruptingCallback()],
+             verbose=0)
+except Exception as e:
+   print(e)
+history = model.fit(np.arange(100).reshape(5, 20), np.zeros(5),
+                     epochs=10, batch_size=1, callbacks=[callback],
+                     verbose=0)
+len(history.history['loss'])
+```
+
+
+### Relevant log output
+
+```shell
+ValueError: To use the BackupAndRestore method, your model must be built before you call `fit()`. Model is unbuilt. You can build it beforehand by calling it on a batch of data.
+```
+"
+2766651959,84033,TFLITE NMS kernel Inconsistent Outputs and Out of Memory issues,closed,2025-01-02 21:14:57+00:00,2025-01-22T19:59:29Z,2025-01-22T19:59:26Z,gaikwadrahul8,,https://github.com/tensorflow/tensorflow/issues/84033,"['stat:awaiting tensorflower', 'type:bug', 'comp:lite', 'TF 2.18']","['Please add label ""comp:lite""', ""Hi, @sdp009 \r\nI apologize for the delayed response, I tried to run provided code in Google colab but I'm getting `Your session crashed after using all available RAM.` so that is due to OOM issue for reference I've added [gist-file](https://colab.sandbox.google.com/gist/gaikwadrahul8/964d0d400c3c474441d2981de546688a/tflite-issue-83754.ipynb) and output log screenshot below so we'll have to dig more into this issue and update you\r\n\r\n![image](https://github.com/user-attachments/assets/354efe32-6673-4d40-8ec1-50a645ff3933)\r\n\r\nThank you for your cooperation and patience.\r\n\r\n\r\n\r\n\r\n\r\n"", ""For easier debugging, please reduce the 'max_output_size' to a smaller value to avoid OOM issues.\r\n\r\nBut in actual practice, there are some scenarios where higher 'max_output_size' did caused OOM issues on resource constraint Android devices."", 'Hi @gaikwadrahul8 , did you got chance to inspect it further ? Thanks.', 'Hi, @pkgoogle\nPlease take a look into this issue. Thank you.', 'Hi @sdp009, we will be moving this to [LiteRT](https://github.com/google-ai-edge/litert). Please follow progress there.', 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/84033"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/84033"">No</a>\n']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+Yes
+
+### Source
+
+binary
+
+### TensorFlow version
+
+tf 2.16.2, tf 2.18, tf 2.19.0-dev2024122
+
+### Custom code
+
+Yes
+
+### OS platform and distribution
+
+Linux Ubuntu 22
+
+### Mobile device
+
+Android
+
+### Python version
+
+3.10.12
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+_No response_
+
+### GPU model and memory
+
+_No response_
+
+### Current behavior?
+
+The TFLITE NMS kernel output is not same as Tensorflow NMS output. Although the TFLITE NMS is a dynamic output shape layer, it is _**appending 0's**_ in the ""selected_indices"" output till ""max_output_size"", defeating the purpose of dynamic output.
+
+**TFLITE NMS output must identically match with TF NMS output.**
+
+For large ""max_output_size"", the TFLITE NMS results in super slow computation and many times it goes Out-of-memory on Android devices. The subsequent **Gather** ops, after NMS suffers heavily due to appended 0's in the TFLITE NMS output.
+
+https://github.com/tensorflow/tensorflow/blob/master/tensorflow/lite/kernels/non_max_suppression.cc#L190C44-L190C59 
+
+**Requesting to fix this behavior and ensure both TF and TFLITE NMS output are exactly same.**
+
+![image](https://github.com/user-attachments/assets/6fe5e2eb-b2bf-45f7-8eb8-7a5900f5bb28)
+
+
+
+### Standalone code to reproduce the issue
+
+```shell
+import tensorflow as tf
+import numpy as np
+
+# Test inputs from : https://github.com/onnx/onnx/blob/main/docs/Operators.md#NonMaxSuppression : nonmaxsuppression_limit_output_size
+
+boxes = np.array(
+    [
+        [0.0, 0.0, 1.0, 1.0],
+        [0.0, 0.1, 1.0, 1.1],
+        [0.0, -0.1, 1.0, 0.9],
+        [0.0, 10.0, 1.0, 11.0],
+        [0.0, 10.1, 1.0, 11.1],
+        [0.0, 100.0, 1.0, 101.0],
+    ]
+).astype(np.float32)
+scores = np.array([0.9, 0.75, 0.6, 0.95, 0.5, 0.3]).astype(np.float32)
+
+import tensorflow as tf
+
+max_output_size = tf.constant(tf.int32.max, dtype=tf.int32)
+iou_threshold = 0.5
+
+selected_indices = tf.image.non_max_suppression(
+    boxes, scores, max_output_size, iou_threshold
+)
+print(selected_indices)    # returns expected output : tf.Tensor([3 0 5], shape=(3,), dtype=int32)
+
+@tf.function(input_signature=[
+    tf.TensorSpec(shape=[6, 4], dtype=tf.float32),
+    tf.TensorSpec(shape=[6], dtype=tf.float32),
+])
+def nms_function(boxes, scores):
+    return tf.image.non_max_suppression(boxes, scores, max_output_size=tf.constant(tf.int32.max, dtype=tf.int32), iou_threshold=0.5)
+
+concrete_function = nms_function.get_concrete_function()
+print(concrete_function(boxes, scores))    # returns expected output : tf.Tensor([3 0 5], shape=(3,), dtype=int32)
+
+
+converter = tf.lite.TFLiteConverter.from_concrete_functions([concrete_function])
+tflite_model = converter.convert()
+
+with open('test_nms.tflite', 'wb') as f:
+    f.write(tflite_model)
+
+interpreter = tf.lite.Interpreter(model_path='test_nms.tflite')
+interpreter.allocate_tensors()
+
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
+
+interpreter.set_tensor(input_details[0]['index'], boxes)
+interpreter.set_tensor(input_details[1]['index'], scores)
+
+interpreter.invoke()
+
+selected_indices = interpreter.get_tensor(output_details[0]['index'])
+print(selected_indices)    # returns incorrect output appended with 0's : [3 0 5 ... 0 0 0]
+print(selected_indices.shape)    # incorrect output of shape : (2147483647,)
+
+# above causes OOM error
+```
+
+
+### Relevant log output
+
+```shell
+TF output = tf.Tensor([3 0 5], shape=(3,), dtype=int32)
+
+TF Lite output = [3 0 5 ... 0 0 0]  ; shape = (2147483647,)
+```
+"
+2768073649,84119,Tensortflow import issue after installation,closed,2025-01-03 19:35:37+00:00,2025-01-06T13:18:43Z,2025-01-05T14:37:30Z,Venkat6871,,https://github.com/tensorflow/tensorflow/issues/84119,['type:bug'],"['check python version ,I think it need 3.10 version because it was giving the similar type of error in 3.12\r\nif still error persists try with gpu', ""Hi Manoj - I tried 3.10 ad 3.12. I don't believe they are now available for\r\ndownload. I also tried tensorflow-cpu, but it didn't help.\r\n\r\nWhere do you find tensorflow-gpu? I don't have a GPU, but my CPU is ARM\r\narch. Thanks\r\nDhimant\r\n\r\nOn Sat, Jan 4, 2025 at 6:22\u202fAM Manoj Nayak ***@***.***> wrote:\r\n\r\n> check python version ,I think it need 3.10 version because it was giving\r\n> the similar type of error in 3.12\r\n> if still error persists try with gpu\r\n>\r\n> —\r\n> Reply to this email directly, view it on GitHub\r\n> <https://github.com/tensorflow/tensorflow/issues/84119#issuecomment-2571259338>,\r\n> or unsubscribe\r\n> <https://github.com/notifications/unsubscribe-auth/AOQLJ5YXCCGGJS2T2IU4IGT2I675TAVCNFSM6AAAAABUSHKZYKVHI2DSMVQWIX3LMV43OSLTON2WKQ3PNVWWK3TUHMZDKNZRGI2TSMZTHA>\r\n> .\r\n> You are receiving this because you authored the thread.Message ID:\r\n> ***@***.***>\r\n>\r\n"", 'Duplicate of https://github.com/tensorflow/tensorflow/issues/19584. Please do a search before opening new issues. Please only open new issues if there is information (like your CPU specs) that make your problem different than the existing one.', 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/84119"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/84119"">No</a>\n', 'I did search. You closed my previous issue.\r\n\r\nOn Sun, Jan 5, 2025 at 9:37\u202fAM Mihai Maruseac ***@***.***>\r\nwrote:\r\n\r\n> Duplicate of #19584\r\n> <https://github.com/tensorflow/tensorflow/issues/19584>. Please do a\r\n> search before opening new issues. Please only open new issues if there is\r\n> information (like your CPU specs) that make your problem different than the\r\n> existing one.\r\n>\r\n> —\r\n> Reply to this email directly, view it on GitHub\r\n> <https://github.com/tensorflow/tensorflow/issues/84119#issuecomment-2571648088>,\r\n> or unsubscribe\r\n> <https://github.com/notifications/unsubscribe-auth/AOQLJ5ZHP7HZFBR75M5EAW32JE7UFAVCNFSM6AAAAABUSHKZYKVHI2DSMVQWIX3LMV43OSLTON2WKQ3PNVWWK3TUHMZDKNZRGY2DQMBYHA>\r\n> .\r\n> You are receiving this because you authored the thread.Message ID:\r\n> ***@***.***>\r\n>\r\n', 'Please reopen. This is not closed.\r\n\r\nOn Sun, Jan 5, 2025 at 9:37\u202fAM Mihai Maruseac ***@***.***>\r\nwrote:\r\n\r\n> Closed #84119 <https://github.com/tensorflow/tensorflow/issues/84119> as\r\n> completed.\r\n>\r\n> —\r\n> Reply to this email directly, view it on GitHub\r\n> <https://github.com/tensorflow/tensorflow/issues/84119#event-15817564143>,\r\n> or unsubscribe\r\n> <https://github.com/notifications/unsubscribe-auth/AOQLJ55MYCPK3XWSP3DFHF32JE7UJAVCNFSM6AAAAABUSHKZYKVHI2DSMVQWIX3LMV45UABCJFZXG5LFIV3GK3TUJZXXI2LGNFRWC5DJN5XDWMJVHAYTONJWGQYTIMY>\r\n> .\r\n> You are receiving this because you authored the thread.Message ID:\r\n> ***@***.***>\r\n>\r\n', ""Opening multiple issues can be considered as spam. Let's move discussion to just one issue.""]","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+No
+
+### Source
+
+source
+
+### TensorFlow version
+
+2.18
+
+### Custom code
+
+No
+
+### OS platform and distribution
+
+Windows 11
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+_No response_
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+_No response_
+
+### GPU model and memory
+
+_No response_
+
+### Current behavior?
+
+I resintalled Python and my Anaconda environment and reinstalled using pip from notebook.
+
+Please see attached installation log and then import logs
+
+### Standalone code to reproduce the issue
+
+```shell
+pip install tensorflow
+
+Collecting tensorflow
+  Using cached tensorflow-2.18.0-cp312-cp312-win_amd64.whl.metadata (3.3 kB)
+Collecting tensorflow-intel==2.18.0 (from tensorflow)
+  Using cached tensorflow_intel-2.18.0-cp312-cp312-win_amd64.whl.metadata (4.9 kB)
+Collecting absl-py>=1.0.0 (from tensorflow-intel==2.18.0->tensorflow)
+  Using cached absl_py-2.1.0-py3-none-any.whl.metadata (2.3 kB)
+Collecting astunparse>=1.6.0 (from tensorflow-intel==2.18.0->tensorflow)
+  Using cached astunparse-1.6.3-py2.py3-none-any.whl.metadata (4.4 kB)
+Collecting flatbuffers>=24.3.25 (from tensorflow-intel==2.18.0->tensorflow)
+  Using cached flatbuffers-24.12.23-py2.py3-none-any.whl.metadata (876 bytes)
+Collecting gast!=0.5.0,!=0.5.1,!=0.5.2,>=0.2.1 (from tensorflow-intel==2.18.0->tensorflow)
+  Using cached gast-0.6.0-py3-none-any.whl.metadata (1.3 kB)
+Collecting google-pasta>=0.1.1 (from tensorflow-intel==2.18.0->tensorflow)
+  Using cached google_pasta-0.2.0-py3-none-any.whl.metadata (814 bytes)
+Collecting libclang>=13.0.0 (from tensorflow-intel==2.18.0->tensorflow)
+  Using cached libclang-18.1.1-py2.py3-none-win_amd64.whl.metadata (5.3 kB)
+Collecting opt-einsum>=2.3.2 (from tensorflow-intel==2.18.0->tensorflow)
+  Using cached opt_einsum-3.4.0-py3-none-any.whl.metadata (6.3 kB)
+Requirement already satisfied: packaging in c:\users\dhima\anaconda3\lib\site-packages (from tensorflow-intel==2.18.0->tensorflow) (24.1)
+Requirement already satisfied: protobuf!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,<6.0.0dev,>=3.20.3 in c:\users\dhima\anaconda3\lib\site-packages (from tensorflow-intel==2.18.0->tensorflow) (4.25.3)
+Requirement already satisfied: requests<3,>=2.21.0 in c:\users\dhima\anaconda3\lib\site-packages (from tensorflow-intel==2.18.0->tensorflow) (2.32.3)
+Requirement already satisfied: setuptools in c:\users\dhima\anaconda3\lib\site-packages (from tensorflow-intel==2.18.0->tensorflow) (75.1.0)
+Requirement already satisfied: six>=1.12.0 in c:\users\dhima\anaconda3\lib\site-packages (from tensorflow-intel==2.18.0->tensorflow) (1.16.0)
+Collecting termcolor>=1.1.0 (from tensorflow-intel==2.18.0->tensorflow)
+  Using cached termcolor-2.5.0-py3-none-any.whl.metadata (6.1 kB)
+Requirement already satisfied: typing-extensions>=3.6.6 in c:\users\dhima\anaconda3\lib\site-packages (from tensorflow-intel==2.18.0->tensorflow) (4.11.0)
+Requirement already satisfied: wrapt>=1.11.0 in c:\users\dhima\anaconda3\lib\site-packages (from tensorflow-intel==2.18.0->tensorflow) (1.14.1)
+Collecting grpcio<2.0,>=1.24.3 (from tensorflow-intel==2.18.0->tensorflow)
+  Using cached grpcio-1.68.1-cp312-cp312-win_amd64.whl.metadata (4.0 kB)
+Collecting tensorboard<2.19,>=2.18 (from tensorflow-intel==2.18.0->tensorflow)
+  Using cached tensorboard-2.18.0-py3-none-any.whl.metadata (1.6 kB)
+Collecting keras>=3.5.0 (from tensorflow-intel==2.18.0->tensorflow)
+  Using cached keras-3.7.0-py3-none-any.whl.metadata (5.8 kB)
+Requirement already satisfied: numpy<2.1.0,>=1.26.0 in c:\users\dhima\anaconda3\lib\site-packages (from tensorflow-intel==2.18.0->tensorflow) (1.26.4)
+Requirement already satisfied: h5py>=3.11.0 in c:\users\dhima\anaconda3\lib\site-packages (from tensorflow-intel==2.18.0->tensorflow) (3.11.0)
+Collecting ml-dtypes<0.5.0,>=0.4.0 (from tensorflow-intel==2.18.0->tensorflow)
+  Using cached ml_dtypes-0.4.1-cp312-cp312-win_amd64.whl.metadata (20 kB)
+Requirement already satisfied: wheel<1.0,>=0.23.0 in c:\users\dhima\anaconda3\lib\site-packages (from astunparse>=1.6.0->tensorflow-intel==2.18.0->tensorflow) (0.44.0)
+Requirement already satisfied: rich in c:\users\dhima\anaconda3\lib\site-packages (from keras>=3.5.0->tensorflow-intel==2.18.0->tensorflow) (13.7.1)
+Collecting namex (from keras>=3.5.0->tensorflow-intel==2.18.0->tensorflow)
+  Using cached namex-0.0.8-py3-none-any.whl.metadata (246 bytes)
+Collecting optree (from keras>=3.5.0->tensorflow-intel==2.18.0->tensorflow)
+  Using cached optree-0.13.1-cp312-cp312-win_amd64.whl.metadata (48 kB)
+Requirement already satisfied: charset-normalizer<4,>=2 in c:\users\dhima\anaconda3\lib\site-packages (from requests<3,>=2.21.0->tensorflow-intel==2.18.0->tensorflow) (3.3.2)
+Requirement already satisfied: idna<4,>=2.5 in c:\users\dhima\anaconda3\lib\site-packages (from requests<3,>=2.21.0->tensorflow-intel==2.18.0->tensorflow) (3.7)
+Requirement already satisfied: urllib3<3,>=1.21.1 in c:\users\dhima\anaconda3\lib\site-packages (from requests<3,>=2.21.0->tensorflow-intel==2.18.0->tensorflow) (2.2.3)
+Requirement already satisfied: certifi>=2017.4.17 in c:\users\dhima\anaconda3\lib\site-packages (from requests<3,>=2.21.0->tensorflow-intel==2.18.0->tensorflow) (2024.12.14)
+Requirement already satisfied: markdown>=2.6.8 in c:\users\dhima\anaconda3\lib\site-packages (from tensorboard<2.19,>=2.18->tensorflow-intel==2.18.0->tensorflow) (3.4.1)
+Collecting tensorboard-data-server<0.8.0,>=0.7.0 (from tensorboard<2.19,>=2.18->tensorflow-intel==2.18.0->tensorflow)
+  Using cached tensorboard_data_server-0.7.2-py3-none-any.whl.metadata (1.1 kB)
+Requirement already satisfied: werkzeug>=1.0.1 in c:\users\dhima\anaconda3\lib\site-packages (from tensorboard<2.19,>=2.18->tensorflow-intel==2.18.0->tensorflow) (3.0.3)
+Requirement already satisfied: MarkupSafe>=2.1.1 in c:\users\dhima\anaconda3\lib\site-packages (from werkzeug>=1.0.1->tensorboard<2.19,>=2.18->tensorflow-intel==2.18.0->tensorflow) (2.1.3)
+Requirement already satisfied: markdown-it-py>=2.2.0 in c:\users\dhima\anaconda3\lib\site-packages (from rich->keras>=3.5.0->tensorflow-intel==2.18.0->tensorflow) (2.2.0)
+Requirement already satisfied: pygments<3.0.0,>=2.13.0 in c:\users\dhima\anaconda3\lib\site-packages (from rich->keras>=3.5.0->tensorflow-intel==2.18.0->tensorflow) (2.15.1)
+Requirement already satisfied: mdurl~=0.1 in c:\users\dhima\anaconda3\lib\site-packages (from markdown-it-py>=2.2.0->rich->keras>=3.5.0->tensorflow-intel==2.18.0->tensorflow) (0.1.0)
+Using cached tensorflow-2.18.0-cp312-cp312-win_amd64.whl (7.5 kB)
+Using cached tensorflow_intel-2.18.0-cp312-cp312-win_amd64.whl (390.3 MB)
+Using cached absl_py-2.1.0-py3-none-any.whl (133 kB)
+Using cached astunparse-1.6.3-py2.py3-none-any.whl (12 kB)
+Using cached flatbuffers-24.12.23-py2.py3-none-any.whl (30 kB)
+Using cached gast-0.6.0-py3-none-any.whl (21 kB)
+Using cached google_pasta-0.2.0-py3-none-any.whl (57 kB)
+Using cached grpcio-1.68.1-cp312-cp312-win_amd64.whl (4.4 MB)
+Using cached keras-3.7.0-py3-none-any.whl (1.2 MB)
+Using cached libclang-18.1.1-py2.py3-none-win_amd64.whl (26.4 MB)
+Using cached ml_dtypes-0.4.1-cp312-cp312-win_amd64.whl (127 kB)
+Using cached opt_einsum-3.4.0-py3-none-any.whl (71 kB)
+Using cached tensorboard-2.18.0-py3-none-any.whl (5.5 MB)
+Using cached termcolor-2.5.0-py3-none-any.whl (7.8 kB)
+Using cached tensorboard_data_server-0.7.2-py3-none-any.whl (2.4 kB)
+Using cached namex-0.0.8-py3-none-any.whl (5.8 kB)
+Using cached optree-0.13.1-cp312-cp312-win_amd64.whl (292 kB)
+Installing collected packages: namex, libclang, flatbuffers, termcolor, tensorboard-data-server, optree, opt-einsum, ml-dtypes, grpcio, google-pasta, gast, astunparse, absl-py, tensorboard, keras, tensorflow-intel, tensorflow
+Successfully installed absl-py-2.1.0 astunparse-1.6.3 flatbuffers-24.12.23 gast-0.6.0 google-pasta-0.2.0 grpcio-1.68.1 keras-3.7.0 libclang-18.1.1 ml-dtypes-0.4.1 namex-0.0.8 opt-einsum-3.4.0 optree-0.13.1 tensorboard-2.18.0 tensorboard-data-server-0.7.2 tensorflow-2.18.0 tensorflow-intel-2.18.0 termcolor-2.5.0
+```
+
+
+### Relevant log output
+
+```shell
+import tensorflow as tf
+
+O/p
+---------------------------------------------------------------------------
+ImportError                               Traceback (most recent call last)
+File ~\anaconda3\Lib\site-packages\tensorflow\python\pywrap_tensorflow.py:70
+     69 try:
+---> 70   from tensorflow.python._pywrap_tensorflow_internal import *
+     71 # This try catch logic is because there is no bazel equivalent for py_extension.
+     72 # Externally in opensource we must enable exceptions to load the shared object
+     73 # by exposing the PyInit symbols with pybind. This error will only be
+     74 # caught internally or if someone changes the name of the target _pywrap_tensorflow_internal.
+     75 
+     76 # This logic is used in other internal projects using py_extension.
+
+ImportError: DLL load failed while importing _pywrap_tensorflow_internal: A dynamic link library (DLL) initialization routine failed.
+
+During handling of the above exception, another exception occurred:
+
+ImportError                               Traceback (most recent call last)
+Cell In[2], line 1
+----> 1 import tensorflow as tf
+
+File ~\anaconda3\Lib\site-packages\tensorflow\__init__.py:40
+     37 _os.environ.setdefault(""ENABLE_RUNTIME_UPTIME_TELEMETRY"", ""1"")
+     39 # Do not remove this line; See https://github.com/tensorflow/tensorflow/issues/42596
+---> 40 from tensorflow.python import pywrap_tensorflow as _pywrap_tensorflow  # pylint: disable=unused-import
+     41 from tensorflow.python.tools import module_util as _module_util
+     42 from tensorflow.python.util.lazy_loader import KerasLazyLoader as _KerasLazyLoader
+
+File ~\anaconda3\Lib\site-packages\tensorflow\python\pywrap_tensorflow.py:85
+     83     sys.setdlopenflags(_default_dlopen_flags)
+     84 except ImportError:
+---> 85   raise ImportError(
+     86       f'{traceback.format_exc()}'
+     87       f'\n\nFailed to load the native TensorFlow runtime.\n'
+     88       f'See https://www.tensorflow.org/install/errors '
+     89       f'for some common causes and solutions.\n'
+     90       f'If you need help, create an issue '
+     91       f'at https://github.com/tensorflow/tensorflow/issues '
+     92       f'and include the entire stack trace above this error message.')
+
+ImportError: Traceback (most recent call last):
+  File ""C:\Users\dhima\anaconda3\Lib\site-packages\tensorflow\python\pywrap_tensorflow.py"", line 70, in <module>
+    from tensorflow.python._pywrap_tensorflow_internal import *
+ImportError: DLL load failed while importing _pywrap_tensorflow_internal: A dynamic link library (DLL) initialization routine failed.
+
+
+Failed to load the native TensorFlow runtime.
+See https://www.tensorflow.org/install/errors for some common causes and solutions.
+If you need help, create an issue at https://github.com/tensorflow/tensorflow/issues and include the entire stack trace above this error message.
+```
+"
+2770520809,84205,[XLA] can't compile the tf.keras.layers.Conv2D when padding='valid',closed,2025-01-06 12:07:56+00:00,2025-01-23T01:59:30Z,2025-01-23T01:59:27Z,tilakrayal,,https://github.com/tensorflow/tensorflow/issues/84205,"['stat:awaiting response', 'type:bug', 'stale', 'comp:xla', 'TF 2.18']","['@shaoyuyoung,\r\nI was able to reproduce the issue on TensorFlow v2.17, v2.18 and tf-nightly. Kindly find the gist of it here. Also Could you please confirm whether it was working with the versions which are older than the Tensorflow 2.16?  From v2.16, the TensorFlow contains Keras3.0 and the previous version contains Keras2.0. Thank you!', 'Thank you for your confirmation!\r\n\r\n\r\n> Also Could you please confirm whether it was working with the versions which are older than the Tensorflow 2.16?\r\n\r\nI will do this in my spare time :)', 'This issue is stale because it has been open for 7 days with no activity. It will be closed if no further activity occurs. Thank you.', ""This issue was closed because it has been inactive for 7 days since being marked as stale. Please reopen if you'd like to work on this further."", 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/84205"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/84205"">No</a>\n']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+Yes
+
+### Source
+
+source
+
+### TensorFlow version
+
+nightly
+
+### Custom code
+
+Yes
+
+### OS platform and distribution
+
+_No response_
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+_No response_
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+_No response_
+
+### GPU model and memory
+
+_No response_
+
+### Current behavior?
+
+XLA can't compile the `tf.keras.layers.Conv2D` when `padding='valid'`. However, eager can pass the check.
+There exists a misalignment
+
+### Standalone code to reproduce the issue
+
+```shell
+import os
+import tensorflow as tf
+tf.keras.utils.set_random_seed(42)
+tf.random.set_seed(42)
+
+os.environ[""TF_CPP_MIN_LOG_LEVEL""] = ""3""
+os.environ[""CUDA_VISIBLE_DEVICES""] = ""-1""
+
+
+x = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0], dtype=tf.float32)
+inputs = [x]
+
+
+
+class Model(tf.keras.Model):
+
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv = tf.keras.layers.Conv2D(filters=1, kernel_size=4, padding='valid', activation='relu')
+
+    def call(self, x):
+        x = tf.reshape(x, [1, 3, 3, 1])
+        x = self.conv(x)
+        return x
+
+
+model = Model()
+model(*inputs)
+print(""succeed on eager"")
+
+
+
+class Model(tf.keras.Model):
+
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv = tf.keras.layers.Conv2D(filters=1, kernel_size=4, padding='valid', activation='relu')
+
+    @tf.function(jit_compile=True)
+    def call(self, x):
+        x = tf.reshape(x, [1, 3, 3, 1])
+        x = self.conv(x)
+        return x
+
+
+model = Model()
+model(*inputs)
+print(""succeed on XLA"")
+```
+
+
+### Relevant log output
+
+```shell
+succeed on eager
+Negative dimension size caused by subtracting 4 from 3 for '{{node conv2d_1_1/convolution}} = Conv2D[T=DT_FLOAT, data_format=""NHWC"", dilations=[1, 1, 1, 1], explicit_paddings=[], padding=""VALID"", strides=[1, 1, 1, 1], use_cudnn_on_gpu=true](Reshape, conv2d_1_1/convolution/ReadVariableOp)' with input shapes: [1,3,3,1], [4,4,1,1].
+```
+"
+2779725991,84577,Tensorflow.math.floormod(),closed,2025-01-10 09:40:55+00:00,2025-01-10T09:56:50Z,2025-01-10T09:56:47Z,Venkat6871,,https://github.com/tensorflow/tensorflow/issues/84577,['type:bug'],"['Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/84577"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/84577"">No</a>\n']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+Yes
+
+### Source
+
+source
+
+### TensorFlow version
+
+2.17.0
+
+### Custom code
+
+Yes
+
+### OS platform and distribution
+
+_No response_
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+_No response_
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+_No response_
+
+### GPU model and memory
+
+_No response_
+
+### Current behavior?
+
+The operation tf.math.floormod supports float types, but when performing the operation on two float-type tensors, an internal error occurs.
+`import tensorflow as tf
+x = tf.constant([10, -15, 7.5], dtype=tf.float32)
+y = tf.constant([3, -4, 2.5], dtype=tf.float32)
+name = ""random_floormod_operation""
+result_code = tf.math.floormod(x,y,name)
+print(""!!!!!!!!!!!!!!!!!!!!!!!!!!!"")
+print(result_code)`
+**2025-01-10 09:34:03.279577: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-01-10 09:34:03.294385: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2025-01-10 09:34:03.312397: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8454] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2025-01-10 09:34:03.317811: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1452] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2025-01-10 09:34:03.330916: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-01-10 09:34:04.370985: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+2025-01-10 09:34:05.819237: I tensorflow/core/common_runtime/gpu/gpu_device.cc:2021] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 513 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:38:00.0, compute capability: 8.6
+2025-01-10 09:34:05.819757: I tensorflow/core/common_runtime/gpu/gpu_device.cc:2021] Created device /job:localhost/replica:0/task:0/device:GPU:1 with 22463 MB memory:  -> device: 1, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:41:00.0, compute capability: 8.6
+2025-01-10 09:34:05.820176: I tensorflow/core/common_runtime/gpu/gpu_device.cc:2021] Created device /job:localhost/replica:0/task:0/device:GPU:2 with 22463 MB memory:  -> device: 2, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:44:00.0, compute capability: 8.6
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+W0000 00:00:1736501646.122604   70797 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.124987   70795 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.127360   70789 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.129708   70796 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.132058   70788 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.135845   70801 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.137479   70799 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.139073   70793 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.140713   70787 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.142340   70802 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.143637   70786 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.144931   70783 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.159628   70796 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+2025-01-10 09:34:06.630804: W tensorflow/compiler/mlir/tools/kernel_gen/tf_gpu_runtime_wrappers.cc:40] 'cuModuleLoadData(&module, data)' failed with 'CUDA_ERROR_UNSUPPORTED_PTX_VERSION'
+
+2025-01-10 09:34:06.630843: W tensorflow/compiler/mlir/tools/kernel_gen/tf_gpu_runtime_wrappers.cc:40] 'cuModuleGetFunction(&function, module, kernel_name)' failed with 'CUDA_ERROR_INVALID_HANDLE'
+
+2025-01-10 09:34:06.630870: W tensorflow/core/framework/op_kernel.cc:1828] INTERNAL: 'cuLaunchKernel(function, gridX, gridY, gridZ, blockX, blockY, blockZ, 0, reinterpret_cast<CUstream>(stream), params, nullptr)' failed with 'CUDA_ERROR_INVALID_HANDLE'
+2025-01-10 09:34:06.630894: I tensorflow/core/framework/local_rendezvous.cc:404] Local rendezvous is aborting with status: INTERNAL: 'cuLaunchKernel(function, gridX, gridY, gridZ, blockX, blockY, blockZ, 0, reinterpret_cast<CUstream>(stream), params, nullptr)' failed with 'CUDA_ERROR_INVALID_HANDLE'
+Traceback (most recent call last):
+  File ""/root/myFuzzer/outputs/test5/code/tensorflow.math.floormod/tensorflow.math.floormod38.py"", line 5, in <module>
+    result_code = tf.math.floormod(x,y,name)
+  File ""/root/miniconda3/envs/fuzz4all/lib/python3.10/site-packages/tensorflow/python/ops/weak_tensor_ops.py"", line 142, in wrapper
+    return op(*args, **kwargs)
+  File ""/root/miniconda3/envs/fuzz4all/lib/python3.10/site-packages/tensorflow/python/ops/gen_math_ops.py"", line 4177, in floor_mod
+    _ops.raise_from_not_ok_status(e, name)
+  File ""/root/miniconda3/envs/fuzz4all/lib/python3.10/site-packages/tensorflow/python/framework/ops.py"", line 5983, in raise_from_not_ok_status
+    raise core._status_to_exception(e) from None  # pylint: disable=protected-access
+tensorflow.python.framework.errors_impl.InternalError: {{function_node __wrapped__FloorMod_device_/job:localhost/replica:0/task:0/device:GPU:0}} 'cuLaunchKernel(function, gridX, gridY, gridZ, blockX, blockY, blockZ, 0, reinterpret_cast<CUstream>(stream), params, nullptr)' failed with 'CUDA_ERROR_INVALID_HANDLE' [Op:FloorMod] name: random_floormod_operation**
+The operation runs normally under integer types.
+`import tensorflow as tf
+x = tf.constant([10, -15, 7], dtype=tf.int32)
+y = tf.constant([3, -4, 2], dtype=tf.int32)
+name = ""random_floormod_operation""
+result_code = tf.math.floormod(x,y,name)
+print(""!!!!!!!!!!!!!!!!!!!!!!!!!!!"")
+print(result_code)`
+**2025-01-10 09:38:07.541149: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2025-01-10 09:38:07.559247: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8454] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2025-01-10 09:38:07.564692: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1452] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2025-01-10 09:38:07.577837: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-01-10 09:38:08.635137: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+2025-01-10 09:38:10.256193: I tensorflow/core/common_runtime/gpu/gpu_device.cc:2021] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 513 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:38:00.0, compute capability: 8.6
+2025-01-10 09:38:10.256732: I tensorflow/core/common_runtime/gpu/gpu_device.cc:2021] Created device /job:localhost/replica:0/task:0/device:GPU:1 with 22463 MB memory:  -> device: 1, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:41:00.0, compute capability: 8.6
+2025-01-10 09:38:10.257179: I tensorflow/core/common_runtime/gpu/gpu_device.cc:2021] Created device /job:localhost/replica:0/task:0/device:GPU:2 with 22463 MB memory:  -> device: 2, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:44:00.0, compute capability: 8.6
+!!!!!!!!!!!!!!!!!!!!!!!!!!!
+tf.Tensor([ 1 -3  1], shape=(3,), dtype=int32)**
+
+
+### Standalone code to reproduce the issue
+
+```shell
+import tensorflow as tf
+x = tf.constant([10, -15, 7.5], dtype=tf.float32)
+y = tf.constant([3, -4, 2.5], dtype=tf.float32)
+name = ""random_floormod_operation""
+result_code = tf.math.floormod(x,y,name)
+```
+
+
+### Relevant log output
+
+_No response_"
+2780133136,84585,Tensorflow.math.floormod(),closed,2025-01-10 12:58:11+00:00,2025-01-29T01:59:12Z,2025-01-29T01:59:09Z,Venkat6871,,https://github.com/tensorflow/tensorflow/issues/84585,"['stat:awaiting response', 'type:bug', 'stale', 'comp:apis', '2.17']","['Hi **@yangjingyuan000804** ,\r\nApologies for the delay, and welcome to TensorFlow! I tried running your code on Colab using TensorFlow 2.17.0 and 2.18.0 versions with GPU, and I did not encounter any issues. Please find the [gist](https://colab.sandbox.google.com/gist/Venkat6871/965cfd993a4a8029fd1fcc5d5b53d21c/84585_tf_2-17-0-2-18-0-v-gpu.ipynb) attached here for your reference.\r\nThank you!', 'This issue is stale because it has been open for 7 days with no activity. It will be closed if no further activity occurs. Thank you.', ""This issue was closed because it has been inactive for 7 days since being marked as stale. Please reopen if you'd like to work on this further."", 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/84585"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/84585"">No</a>\n']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+Yes
+
+### Source
+
+source
+
+### TensorFlow version
+
+2.17.0
+
+### Custom code
+
+Yes
+
+### OS platform and distribution
+
+_No response_
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+_No response_
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+_No response_
+
+### GPU model and memory
+
+_No response_
+
+### Current behavior?
+
+The operation tf.math.floormod supports float types, but when performing the operation on two float-type tensors with GPU, an internal error occurs.
+`import tensorflow as tf x = tf.constant([10, -15, 7.5], dtype=tf.float32) y = tf.constant([3, -4, 2.5], dtype=tf.float32) name = ""random_floormod_operation"" result_code = tf.math.floormod(x,y,name) print(""!!!!!!!!!!!!!!!!!!!!!!!!!!!"") print(result_code)`
+**2025-01-10 09:34:03.279577: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable TF_ENABLE_ONEDNN_OPTS=0.
+2025-01-10 09:34:03.294385: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2025-01-10 09:34:03.312397: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8454] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2025-01-10 09:34:03.317811: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1452] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2025-01-10 09:34:03.330916: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-01-10 09:34:04.370985: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+2025-01-10 09:34:05.819237: I tensorflow/core/common_runtime/gpu/gpu_device.cc:2021] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 513 MB memory: -> device: 0, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:38:00.0, compute capability: 8.6
+2025-01-10 09:34:05.819757: I tensorflow/core/common_runtime/gpu/gpu_device.cc:2021] Created device /job:localhost/replica:0/task:0/device:GPU:1 with 22463 MB memory: -> device: 1, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:41:00.0, compute capability: 8.6
+2025-01-10 09:34:05.820176: I tensorflow/core/common_runtime/gpu/gpu_device.cc:2021] Created device /job:localhost/replica:0/task:0/device:GPU:2 with 22463 MB memory: -> device: 2, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:44:00.0, compute capability: 8.6
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+W0000 00:00:1736501646.122604 70797 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.124987 70795 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.127360 70789 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.129708 70796 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.132058 70788 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.135845 70801 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.137479 70799 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.139073 70793 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.140713 70787 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.142340 70802 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.143637 70786 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.144931 70783 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+W0000 00:00:1736501646.159628 70796 gpu_kernel_to_blob_pass.cc:190] Failed to compile generated PTX with ptxas. Falling back to compilation by driver.
+2025-01-10 09:34:06.630804: W tensorflow/compiler/mlir/tools/kernel_gen/tf_gpu_runtime_wrappers.cc:40] 'cuModuleLoadData(&module, data)' failed with 'CUDA_ERROR_UNSUPPORTED_PTX_VERSION'
+
+2025-01-10 09:34:06.630843: W tensorflow/compiler/mlir/tools/kernel_gen/tf_gpu_runtime_wrappers.cc:40] 'cuModuleGetFunction(&function, module, kernel_name)' failed with 'CUDA_ERROR_INVALID_HANDLE'
+
+2025-01-10 09:34:06.630870: W tensorflow/core/framework/op_kernel.cc:1828] INTERNAL: 'cuLaunchKernel(function, gridX, gridY, gridZ, blockX, blockY, blockZ, 0, reinterpret_cast(stream), params, nullptr)' failed with 'CUDA_ERROR_INVALID_HANDLE'
+2025-01-10 09:34:06.630894: I tensorflow/core/framework/local_rendezvous.cc:404] Local rendezvous is aborting with status: INTERNAL: 'cuLaunchKernel(function, gridX, gridY, gridZ, blockX, blockY, blockZ, 0, reinterpret_cast(stream), params, nullptr)' failed with 'CUDA_ERROR_INVALID_HANDLE'
+Traceback (most recent call last):
+File ""/root/myFuzzer/outputs/test5/code/tensorflow.math.floormod/tensorflow.math.floormod38.py"", line 5, in
+result_code = tf.math.floormod(x,y,name)
+File ""/root/miniconda3/envs/fuzz4all/lib/python3.10/site-packages/tensorflow/python/ops/weak_tensor_ops.py"", line 142, in wrapper
+return op(*args, kwargs)
+File ""/root/miniconda3/envs/fuzz4all/lib/python3.10/site-packages/tensorflow/python/ops/gen_math_ops.py"", line 4177, in floor_mod
+_ops.raise_from_not_ok_status(e, name)
+File ""/root/miniconda3/envs/fuzz4all/lib/python3.10/site-packages/tensorflow/python/framework/ops.py"", line 5983, in raise_from_not_ok_status
+raise core._status_to_exception(e) from None # pylint: disable=protected-access
+tensorflow.python.framework.errors_impl.InternalError: {{function_node _wrapped__FloorMod_device/job:localhost/replica:0/task:0/device:GPU:0}} 'cuLaunchKernel(function, gridX, gridY, gridZ, blockX, blockY, blockZ, 0, reinterpret_cast(stream), params, nullptr)' failed with 'CUDA_ERROR_INVALID_HANDLE' [Op:FloorMod] name: random_floormod_operation
+The operation runs normally under integer types with GPU.
+`import tensorflow as tf x = tf.constant([10, -15, 7], dtype=tf.int32) y = tf.constant([3, -4, 2], dtype=tf.int32) name = ""random_floormod_operation"" result_code = tf.math.floormod(x,y,name) print(""!!!!!!!!!!!!!!!!!!!!!!!!!!!"") print(result_code)`
+2025-01-10 09:38:07.541149: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2025-01-10 09:38:07.559247: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8454] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2025-01-10 09:38:07.564692: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1452] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2025-01-10 09:38:07.577837: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-01-10 09:38:08.635137: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+2025-01-10 09:38:10.256193: I tensorflow/core/common_runtime/gpu/gpu_device.cc:2021] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 513 MB memory: -> device: 0, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:38:00.0, compute capability: 8.6
+2025-01-10 09:38:10.256732: I tensorflow/core/common_runtime/gpu/gpu_device.cc:2021] Created device /job:localhost/replica:0/task:0/device:GPU:1 with 22463 MB memory: -> device: 1, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:41:00.0, compute capability: 8.6
+2025-01-10 09:38:10.257179: I tensorflow/core/common_runtime/gpu/gpu_device.cc:2021] Created device /job:localhost/replica:0/task:0/device:GPU:2 with 22463 MB memory: -> device: 2, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:44:00.0, compute capability: 8.6
+!!!!!!!!!!!!!!!!!!!!!!!!!!!
+tf.Tensor([ 1 -3 1], shape=(3,), dtype=int32)
+
+The float type is correct for the CPU as well.
+`import tensorflow as tf
+x = tf.constant([10, -15, 7.8], dtype=tf.float32)
+y = tf.constant([3, -4, 2.5], dtype=tf.float32)
+name = ""random_floormod_operation""
+with tf.device('/CPU:0'):
+    result_code = tf.math.floormod(x,y,name)
+print(""!!!!!!!!!!!!!!!!!!!!!!!!!!!"")
+print(result_code)`2025-01-10 12:57:31.435249: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-01-10 12:57:31.449893: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2025-01-10 12:57:31.467647: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8454] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2025-01-10 12:57:31.472965: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1452] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2025-01-10 12:57:31.486020: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-01-10 12:57:32.528966: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+2025-01-10 12:57:34.007683: I tensorflow/core/common_runtime/gpu/gpu_device.cc:2021] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 447 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:38:00.0, compute capability: 8.6
+2025-01-10 12:57:34.008219: I tensorflow/core/common_runtime/gpu/gpu_device.cc:2021] Created device /job:localhost/replica:0/task:0/device:GPU:1 with 22463 MB memory:  -> device: 1, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:41:00.0, compute capability: 8.6
+2025-01-10 12:57:34.008642: I tensorflow/core/common_runtime/gpu/gpu_device.cc:2021] Created device /job:localhost/replica:0/task:0/device:GPU:2 with 22463 MB memory:  -> device: 2, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:44:00.0, compute capability: 8.6
+!!!!!!!!!!!!!!!!!!!!!!!!!!!
+tf.Tensor([ 1.        -3.         0.3000002], shape=(3,), dtype=float32)
+
+
+### Standalone code to reproduce the issue
+
+```shell
+import tensorflow as tf
+x = tf.constant([10, -15, 7.5], dtype=tf.float32)
+y = tf.constant([3, -4, 2.5], dtype=tf.float32)
+name = ""random_floormod_operation""
+result_code = tf.math.floormod(x,y,name)
+```
+
+
+### Relevant log output
+
+_No response_"
+2793253924,85070,Unable to convert function return value to a Python type! Error Fix Solution Needed,closed,2025-01-16 16:40:25+00:00,2025-01-16T21:23:32Z,2025-01-16T21:23:29Z,tilakrayal,,https://github.com/tensorflow/tensorflow/issues/85070,['type:bug'],"[""This looks like a duplicate. Please don't open multiple issues for the same thing. Also, please don't ask for urgent help, this is an OSS community."", 'Are you satisfied with the resolution of your issue?\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=Yes&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/85070"">Yes</a>\n<a href=""https://docs.google.com/forms/d/e/1FAIpQLSfaP12TRhd9xSxjXZjcZFNXPGk4kc1-qMdv3gc6bEP90vY1ew/viewform?entry.85265664=No&entry.2137816233=https://github.com/tensorflow/tensorflow/issues/85070"">No</a>\n']","### Issue type
+
+Bug
+
+### Have you reproduced the bug with TensorFlow Nightly?
+
+Yes
+
+### Source
+
+source
+
+### TensorFlow version
+
+2.10.1
+
+### Custom code
+
+Yes
+
+### OS platform and distribution
+
+Windows 10
+
+### Mobile device
+
+_No response_
+
+### Python version
+
+3.10.10
+
+### Bazel version
+
+_No response_
+
+### GCC/compiler version
+
+_No response_
+
+### CUDA/cuDNN version
+
+_No response_
+
+### GPU model and memory
+
+_No response_
+
+### Current behavior?
+
+I am using Windows 10
+I use python 3.10.10, because when I use python 3.12, I couldn't install tensorflow-io
+I installed tensorflow 2.10.1, because only tensorflow-text 2.10.0 is available on Windows 10.
+
+Actually I am going to train model.
+So I cloned tensorflow models repository
+and made dataset, ...
+
+I want help to run models/research/object_detection/model_main_tf2.py file without error.
+Please help me.
+
+### Standalone code to reproduce the issue
+
+```shell
+in tensorflow/python/framework/dtypes.py
+line 29
+_np_bfloat16 = _pywrap_bfloat16.TF_bfloat16_type()
+
+Here I have error
+TypeError: Unable to convert function return value to a Python type! The signature was
+        () -> handle
+```
+
+### Relevant log output
+
+```shell
+
+```"

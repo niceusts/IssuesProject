@@ -1,6 +1,10 @@
 import pandas as pd
 import psycopg2
 from psycopg2 import sql
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Função para verificar os temas na issue
 def classificar_temas(descricao, comentarios):
@@ -45,7 +49,10 @@ def classificar_temas(descricao, comentarios):
 
 # Conectar ao banco de dados
 conn = psycopg2.connect(
-    dbname="", user="", password="", host=""
+    dbname=os.getenv("DB_NAME"), 
+    user=os.getenv("DB_USER"), 
+    password=os.getenv("DB_PASSWORD"), 
+    host=os.getenv("DB_HOST")
 )
 cursor = conn.cursor()
 

@@ -1,23 +1,26 @@
 import requests
 import pandas as pd
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
-# Substitua pelo seu token (opcional, mas recomendado para evitar limites de requisição)
-token = "token"  # Coloque seu token ou deixe vazio se não for usar
+token = os.getenv("TOKEN")
 headers = {"Authorization": f"token {token}"} if token else {}
 
 url = "https://api.github.com/repos/tensorflow/tensorflow/issues"
 
 # Configuração
-total_limit = 300  # Limite de issues a coletar
-per_page = 100  # Máximo permitido pela API
+total_limit = 20  # Limite de issues a coletar
+per_page = 1  # Máximo permitido pela API
 all_issues = []
 page = 1
 
 while len(all_issues) < total_limit:
     print(f"Buscando página {page}...")
     params = {
-        "state": "closed",  # Pegar issues abertas e fechadas
+        "state": "closed",  # Pegar issues fechadas
+        "labels": "type:bug",  # Filtrar por label "type:bug"
         "per_page": per_page,
         "page": page,
     }
@@ -27,6 +30,9 @@ while len(all_issues) < total_limit:
         issues = response.json()
         if not issues:  # Se não houver mais issues, pare a coleta
             break
+
+         # Filtrar apenas as issues que têm assignee e o label "type:bug"
+        issues = [issue for issue in issues if 'assignee' in issue and issue['assignee'] is not None]
         
         # Adicionar issues até atingir o limite
         remaining_slots = total_limit - len(all_issues)
@@ -71,6 +77,11 @@ df['created_at'] = pd.to_datetime(df['created_at'])  # Converter para datetime
 df = df.sort_values(by='created_at')  # Ordenar em ordem crescente de data (mais antigas primeiro)
 
 # Escolher colunas de interesse (modifique conforme necessário)
+
+# Extrair apenas o login do assignee (se houver múltiplos, ele junta os logins)
+df['assignee'] = df['assignee'].apply(lambda x: x[0]['login'] if isinstance(x, list) and len(x) > 0 else (x['login'] if isinstance(x, dict) else None))
+
+
 selected_columns = [
     "id", "number", "title", "state", "created_at", "updated_at", 
     "closed_at", "assignee", "milestone", "html_url", "labels", "comments", "description"
@@ -79,6 +90,6 @@ selected_columns = [
 df = df[selected_columns]
 
 # Salvar em CSV
-output_file = "issues_final.csv"
+output_file = "issues6.csv"
 df.to_csv(output_file, index=False)
 print(f"Issues mais antigas com comentários, labels e descrições salvas no arquivo: {output_file}")
