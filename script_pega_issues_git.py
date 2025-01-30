@@ -11,8 +11,8 @@ headers = {"Authorization": f"token {token}"} if token else {}
 url = "https://api.github.com/repos/tensorflow/tensorflow/issues"
 
 # Configuração
-total_limit = 20  # Limite de issues a coletar
-per_page = 1  # Máximo permitido pela API
+total_limit = 300  # Limite de issues a coletar
+per_page = 100 
 all_issues = []
 page = 1
 
@@ -28,7 +28,7 @@ while len(all_issues) < total_limit:
 
     if response.status_code == 200:
         issues = response.json()
-        if not issues:  # Se não houver mais issues, pare a coleta
+        if not issues: 
             break
 
          # Filtrar apenas as issues que têm assignee e o label "type:bug"
@@ -73,12 +73,10 @@ for index, row in df.iterrows():
 df['description'] = df['body']  # Corpo da issue, que é a descrição
 
 # Ordenar o DataFrame pelas issues mais antigas (por data de criação)
-df['created_at'] = pd.to_datetime(df['created_at'])  # Converter para datetime
-df = df.sort_values(by='created_at')  # Ordenar em ordem crescente de data (mais antigas primeiro)
+df['created_at'] = pd.to_datetime(df['created_at'])
+df = df.sort_values(by='created_at') 
 
-# Escolher colunas de interesse (modifique conforme necessário)
-
-# Extrair apenas o login do assignee (se houver múltiplos, ele junta os logins)
+# Extrair apenas o login do assignee
 df['assignee'] = df['assignee'].apply(lambda x: x[0]['login'] if isinstance(x, list) and len(x) > 0 else (x['login'] if isinstance(x, dict) else None))
 
 
